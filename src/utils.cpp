@@ -87,16 +87,20 @@ void drawExplosions() {
         }
     } 
     else {
-        for (int i = explosionQueue.size() - 1; i >= 0; --i) {
+        int queueSize = explosionQueue.size();
+        for (int i = 0; i < queueSize; ++i) {
             PendingExplosion& explosion = explosionQueue.front();
             explosion.update();
             if (explosion.isComplete()) {
                 explosion.complete();
                 explosionQueue.pop();
                 if (explosionQueue.empty()) {
-                    // Game::instance().skipExplosions = false;
                     end = true;
                 }
+            } else {
+                // Move incomplete explosion to the back of the queue
+                explosionQueue.push(explosion);
+                explosionQueue.pop();
             }
         }
     }
