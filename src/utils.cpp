@@ -176,46 +176,32 @@ void moveCameraviaRightClick() {
             float dx = mousePos.x - lastMousePos.x;
             float dy = mousePos.y - lastMousePos.y;
 
-            // Sensitivity factor
             float sensitivity = 0.005f;
 
-            // Calculate horizontal rotation (around Y axis)
-            float angleY = -dx * sensitivity;
-            // Calculate vertical rotation (around X axis)
-            float angleX = -dy * sensitivity;
+            // Get vector from target to camera
+            Vector3 offset = Vector3Subtract(camera.position, camera.target);
+            float radius = Vector3Length(offset);
 
-            // Vector from target to camera
-            Vector3 dir = Vector3Subtract(camera.position, camera.target);
+            // Convert offset to spherical coordinates
+            float theta = atan2f(offset.x, offset.z); // azimuth angle (Y-axis)
+            float phi = acosf(offset.y / radius);     // elevation angle (X-axis)
 
-            // Horizontal rotation (Y axis)
-            float cosY = cosf(angleY);
-            float sinY = sinf(angleY);
-            float x = dir.x * cosY - dir.z * sinY;
-            float z = dir.x * sinY + dir.z * cosY;
-            dir.x = x;
-            dir.z = z;
+            // Apply mouse movement
+            theta -= dx * sensitivity; // yaw (horizontal)
+            phi -= dy * sensitivity;   // pitch (vertical)
 
-            // Vertical rotation (X axis)
-            Vector3 right = Vector3CrossProduct(camera.up, dir);
-            right = Vector3Normalize(right);
-            float cosX = cosf(angleX);
-            float sinX = sinf(angleX);
-            Vector3 newDir = {
-                dir.x * cosX + camera.up.x * sinX,
-                dir.y * cosX + camera.up.y * sinX,
-                dir.z * cosX + camera.up.z * sinX
-            };
+            // Clamp phi to avoid flipping
+            float epsilon = 0.01f;
+            if (phi < epsilon) phi = epsilon;
+            if (phi > PI - epsilon) phi = PI - epsilon;
 
-            // Prevent flipping over (limit vertical angle)
-            float maxPitch = 1.5f; // ~85 degrees
-            Vector3 forward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-            float pitch = asinf(forward.y);
-            float newPitch = asinf(Vector3Normalize(Vector3Subtract(camera.target, Vector3Add(camera.target, newDir))).y);
-            if (fabsf(newPitch) < maxPitch) {
-                dir = newDir;
-            }
+            // Convert back to Cartesian
+            offset.x = radius * sinf(phi) * sinf(theta);
+            offset.y = radius * cosf(phi);
+            offset.z = radius * sinf(phi) * cosf(theta);
 
-            camera.position = Vector3Add(camera.target, dir);
+            // Update camera position (target stays same)
+            camera.position = Vector3Add(camera.target, offset);
 
             lastMousePos = mousePos;
         }
@@ -223,6 +209,7 @@ void moveCameraviaRightClick() {
         dragging = false;
     }
 }
+
 
 void mousePressed(){
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
