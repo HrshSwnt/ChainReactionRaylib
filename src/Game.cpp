@@ -57,7 +57,7 @@ void Game::drawGame() const {
 
     // Camera looking down from above (top-down view)
     Camera3D camera = {
-        {xOffset, yOffset, -std::max(rows, cols) * SPACING}, // Position above the center
+        {xOffset, yOffset, -std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position above the center
         {xOffset, yOffset, zOffset}, // Target is the center of the grid
         {0, 1, 0}, // Up vector
         80.0f // FOV
@@ -203,7 +203,7 @@ Vector2 Game::screenToGrid(Vector2 screenPos) const {
     float yOffset = cols * SPACING / 2;
     float zOffset = depth / 2;
     Camera3D camera = {
-        {xOffset, yOffset, -std::max(rows, cols) * SPACING}, // Position above the center
+        {xOffset, yOffset, -std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position above the center
         {xOffset, yOffset, zOffset}, // Target is the center of the grid
         {0, 1, 0}, // Up vector
         80.0f // FOV

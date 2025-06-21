@@ -15,6 +15,8 @@ GAME_STATE gameState;
 int frameCount;
 std::queue<PendingExplosion> explosionQueue;
 std::queue<PendingExplosion> nextQueue;
+Shader cellShader;
+int baseColorLoc;
 int main ()
 {
 	// Tell the window to use vsync and work on high DPI display
@@ -29,7 +31,9 @@ int main ()
 
 	// Load resources, initialize game state, etc.
 	SearchAndSetResourceDir("resources");
-	
+	cellShader = LoadShader("cell.vs", "cell.fs");
+	baseColorLoc = GetShaderLocation(cellShader, "baseColor");
+
 	// game loop
 	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{

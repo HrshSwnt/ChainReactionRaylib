@@ -97,7 +97,8 @@ public:
 
 extern std::queue<PendingExplosion> explosionQueue;
 extern std::queue<PendingExplosion> nextQueue;
-
+extern Shader cellShader;
+extern int baseColorLoc;
 float shakeStengthFromLevel(int level, int neighborCount);
 
 void mousePressed();
