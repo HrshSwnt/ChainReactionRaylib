@@ -210,6 +210,21 @@ void moveCameraviaRightClick() {
     }
 }
 
+void zoomCameraViaScroll() {
+    float scroll = GetMouseWheelMove();  // Positive = scroll up, Negative = scroll down
+    if (scroll != 0.0f) {
+        float zoomSpeed = 6.0f;  // You can tweak this value for desired sensitivity
+
+        // Get direction vector from target to camera (zoom out direction)
+        Vector3 dir = Vector3Subtract(camera.position, camera.target);
+        dir = Vector3Normalize(dir);
+
+        // Move camera along this direction
+        Vector3 zoomOffset = Vector3Scale(dir, -scroll * zoomSpeed);
+        camera.position = Vector3Add(camera.position, zoomOffset);
+    }
+}
+
 
 void mousePressed(){
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {

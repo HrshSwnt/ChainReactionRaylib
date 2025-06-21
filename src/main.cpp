@@ -71,10 +71,14 @@ int main ()
 				drawPlaying();
 				drawValidCursor();
 				moveCameraviaRightClick();
+				zoomCameraViaScroll();
 				resetCameraviaMiddleClick();
 				break;
 			case GAME_STATE_GAME_OVER:
 				drawGameOver();
+				moveCameraviaRightClick();
+				zoomCameraViaScroll();
+				resetCameraviaMiddleClick();
 				break;
 			case GAME_STATE_EXIT:
 				drawExit();

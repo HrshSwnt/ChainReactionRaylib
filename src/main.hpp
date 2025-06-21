@@ -125,3 +125,4 @@ void drawExplosions();
 void initializeCamera();
 void moveCameraviaRightClick();
 void resetCameraviaMiddleClick();
+void zoomCameraViaScroll();
