@@ -23,11 +23,37 @@ void Cell::drawCell() const {
     float shakeStrength = shakeStengthFromLevel(l, neighbors.size());
     float time = GetTime();
 
+    // Define positions for 1, 2, and 3 spheres (like atoms)
+    std::vector<Vector3> offsets;
+    float bondDist = 22.0f + shakeStrength * 0.5f; // distance between spheres
+
+    if (l == 1) {
+        // Single sphere at center
+        offsets.push_back({0, 0, 0});
+    } else if (l == 2) {
+        // Two spheres, side by side (horizontal bond)
+        offsets.push_back({-bondDist / 2, 0, 0});
+        offsets.push_back({bondDist / 2, 0, 0});
+    } else if (l == 3) {
+        // H2O-like: one center, two at ~104.5 degrees (water bond angle)
+        float angle = 52.25f * DEG2RAD; // half of 104.5°
+        offsets.push_back({0, 0, 0}); // Oxygen (center)
+        offsets.push_back({cosf(angle) * bondDist, sinf(angle) * bondDist, 0});
+        offsets.push_back({cosf(-angle) * bondDist, sinf(-angle) * bondDist, 0});
+    } else {
+        // For l > 3, arrange in a circle
+        for (int i = 0; i < l; i++) {
+            float theta = (2 * PI * i) / l;
+            offsets.push_back({cosf(theta) * bondDist, sinf(theta) * bondDist, 0});
+        }
+    }
+
     for (int i = 0; i < l; i++) {
         float t = getFrameCount() * 0.05f + i * 10;
-        float offsetX = shakeStrength * sinf(t + i);
-        float offsetY = shakeStrength * cosf(t + i * 1.3f);
-        float offsetZ = -i * 15 + shakeStrength * sinf(t + i * 0.7f);
+        float offsetX = offsets[i].x + shakeStrength * sinf(t + i);
+        float offsetY = offsets[i].y + shakeStrength * cosf(t + i * 1.3f);
+        float offsetZ = offsets[i].z + shakeStrength * sinf(t + i * 0.7f);
+
         Vector3 pos = {cx + offsetX, cy + offsetY, cz + offsetZ};
         Matrix transform = MatrixTranslate(pos.x, pos.y, pos.z);
         Matrix mvp = MatrixMultiply(GetCameraMatrix(camera), transform); // adjust as needed
