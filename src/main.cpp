@@ -40,7 +40,7 @@ int main ()
 		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(BLACK);
 
-		DrawCircle(GetMouseX(), GetMouseY(), 20, RED);
+		
 		
 		switch (gameState)
 		{
@@ -52,6 +52,7 @@ int main ()
 				break;
 			case GAME_STATE_PLAYING:
 				drawPlaying();
+				drawValidCursor();
 				break;
 			case GAME_STATE_GAME_OVER:
 				drawGameOver();

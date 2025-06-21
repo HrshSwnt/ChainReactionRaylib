@@ -107,4 +107,5 @@ void drawMenu();
 void drawPlaying();
 void drawGameOver();
 void drawExit();
+void drawValidCursor();
 void drawExplosions();

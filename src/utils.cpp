@@ -67,6 +67,25 @@ void drawExit() {
     DrawText("Exiting game...", GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
 }
 
+void drawValidCursor() {
+    Vector2 mousePos = GetMousePosition();
+    Vector2 gridPos = Game::instance().screenToGrid(mousePos);
+    int X = static_cast<int>(gridPos.x);
+    int Y = static_cast<int>(gridPos.y);
+    
+    if (X >= 0 && X < Game::instance().rows && Y >= 0 && Y < Game::instance().cols) {
+        Cell& cell = Game::instance().Board[X][Y];
+        if (cell.p == 0 || cell.p == Game::instance().getPlayer()) { // Only draw cursor if the cell is empty
+            Vector2 screenPos = GetMousePosition();
+            DrawCircleV(screenPos, 10, GREEN);
+        }
+    } else {
+        // Draw a red circle if the cursor is out of bounds
+        Vector2 screenPos = GetMousePosition();
+        DrawCircleV(screenPos, 10, RED);
+    }
+}
+
 void drawExplosions() {
     bool end = false;
     if (Game::instance().skipExplosions) {
