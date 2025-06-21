@@ -9,7 +9,7 @@
 #define depth 100
 #define MIN_SHAKE_STRENGTH 1.0f
 #define MAX_SHAKE_STRENGTH 5.0f
-#define ExplosionDuration 30
+#define ExplosionDuration 30.0f
 #define SphereRadius 20
 
 

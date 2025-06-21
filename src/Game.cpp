@@ -99,9 +99,23 @@ void Game::drawGame() const {
             cell.drawCell();
         }
     }
-
+    
     drawExplosions();
     EndMode3D();
+    for (const auto& playerID : Players) {
+        Color playerColor = PlayerIDtoColor(playerID);
+        std::string playerName = PlayerIDtoName(playerID);
+        int count = 0;
+        for (const auto& row : Board) {
+            for (const auto& cell : row) {
+                if (cell.p == playerID) {
+                    count++;
+                }
+            }
+        }
+        std::string playerText = playerName + " (" + std::to_string(count) + ")";
+        DrawText(playerText.c_str(), 10, 20 * playerID, 20, playerColor);
+    }
     std::string cursor_info = "Cursor is on cell: (" + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).x)) + ", " + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).y)) + ")";
     DrawText(cursor_info.c_str(), 10, windowHeight - 30, 20, WHITE);
 }
@@ -132,7 +146,7 @@ int Game::intermediaryGameEndCheck() {
         p_count.resize(playerCount, 0);
         for (const auto& row : Board) {
             for (const auto& cell : row) {
-                if (cell.p > 0 && cell.p < playerCount) {
+                if (cell.p > 0 && cell.p <= playerCount) {
                     p_count[cell.p - 1]++;
                 }
             }
@@ -159,7 +173,7 @@ int Game::gameEndCheck() {
         p_count.resize(playerCount, 0);
         for (const auto& row : Board) {
             for (const auto& cell : row) {
-                if (cell.p > 0 && cell.p < playerCount) {
+                if (cell.p > 0 && cell.p <= playerCount) {
                     p_count[cell.p - 1]++;
                 }
             }
