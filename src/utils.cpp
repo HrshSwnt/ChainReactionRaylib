@@ -126,7 +126,7 @@ void mousePressed(){
                 break;
             case GAME_STATE_MENU:
                 // Here you would typically gather input for rows, columns, and players
-                Game::instance().initialize(5, 5, 2); // Example initialization
+                Game::instance().initialize(6, 6, 3); // Example initialization
                 gameState = GAME_STATE_PLAYING;
                 break;
             case GAME_STATE_PLAYING:
