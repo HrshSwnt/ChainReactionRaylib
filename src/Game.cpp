@@ -128,6 +128,9 @@ void Game::press(float x, float y) {
     Vector2 gridPos = screenToGrid({x, y});
     int X = static_cast<int>(gridPos.x);
     int Y = static_cast<int>(gridPos.y);
+    if (X < 0 || X >= rows || Y < 0 || Y >= cols) {
+        return; // Out of bounds
+    }
     if (X >= 0 && X < rows && Y >= 0 && Y < cols && currentPlayer >= 0 && currentPlayer < playerCount) {
         if (Board[X][Y].incr(getPlayer(), true)) {
             turns++;
@@ -215,11 +218,5 @@ Vector2 Game::screenToGrid(Vector2 screenPos) const {
     // Convert world coordinates to grid indices
     int gridX = static_cast<int>(x / SPACING);
     int gridY = static_cast<int>(y / SPACING);
-
-    if (gridX < 0) gridX = 0;
-    if (gridX >= rows) gridX = rows - 1;
-    if (gridY < 0) gridY = 0;
-    if (gridY >= cols) gridY = cols - 1;
-
     return { (float)gridX, (float)gridY };
 }
