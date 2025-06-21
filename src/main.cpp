@@ -15,9 +15,14 @@ GAME_STATE gameState;
 int frameCount;
 std::queue<PendingExplosion> explosionQueue;
 std::queue<PendingExplosion> nextQueue;
-Shader cellShader;
-int timeLoc;
-int baseColorLoc;
+
+Shader coreShader;
+Shader auraShader;
+int baseColorLocCore;
+int baseColorLocAura;
+int timeLocAura;
+int mvpLocCore;
+int mvpLocAura;
 int main ()
 {
 	// Tell the window to use vsync and work on high DPI display
@@ -32,9 +37,15 @@ int main ()
 
 	// Load resources, initialize game state, etc.
 	SearchAndSetResourceDir("resources");
-	cellShader = LoadShader("cell.vs", "cell.fs");
-	timeLoc = GetShaderLocation(cellShader, "time");
-	baseColorLoc = GetShaderLocation(cellShader, "baseColor");
+	// Load shaders
+	coreShader = LoadShader("cell_core.vs", "cell_core.fs");
+	auraShader = LoadShader("cell_aura.vs", "cell_aura.fs");
+	// Get shader locations
+	baseColorLocCore = GetShaderLocation(coreShader, "baseColor");
+	baseColorLocAura = GetShaderLocation(auraShader, "baseColor");
+	timeLocAura = GetShaderLocation(auraShader, "time");
+	mvpLocCore = GetShaderLocation(coreShader, "mvp");
+	mvpLocAura = GetShaderLocation(auraShader, "mvp");
 
 	// game loop
 	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window

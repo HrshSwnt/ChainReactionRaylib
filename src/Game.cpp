@@ -56,12 +56,6 @@ void Game::drawGame() const {
     float zOffset = depth / 2;
 
     // Camera looking down from above (top-down view)
-    Camera3D camera = {
-        {xOffset, yOffset, -std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position above the center
-        {xOffset, yOffset, zOffset}, // Target is the center of the grid
-        {0, 1, 0}, // Up vector
-        80.0f // FOV
-    };
     BeginMode3D(camera);
 
     // Draw grid lines (including borders)
@@ -199,15 +193,6 @@ int Game::gameEndCheck() {
 
 Vector2 Game::screenToGrid(Vector2 screenPos) const {
     // Convert screen coordinates to grid coordinates
-    float xOffset = rows * SPACING / 2;
-    float yOffset = cols * SPACING / 2;
-    float zOffset = depth / 2;
-    Camera3D camera = {
-        {xOffset, yOffset, -std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position above the center
-        {xOffset, yOffset, zOffset}, // Target is the center of the grid
-        {0, 1, 0}, // Up vector
-        80.0f // FOV
-    };
     Ray ray = GetMouseRay(screenPos, camera);
 
     // Plane at z = depth

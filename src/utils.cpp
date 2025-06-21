@@ -10,6 +10,7 @@ std::vector<std::string> playerNames = {
 };
 
 
+Camera3D camera;
 
 void incrementFrameCount() {
     frameCount++;
@@ -136,6 +137,20 @@ void drawExplosions() {
     }
 }
 
+void initializeCamera(int rows, int cols) {
+    float xOffset = rows * SPACING / 2;
+    float yOffset = cols * SPACING / 2;
+    float zOffset = depth / 2;
+
+    // Camera looking down from above (top-down view)
+    camera = {
+        {xOffset, yOffset, -std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position above the center
+        {xOffset, yOffset, zOffset}, // Target is the center of the grid
+        {0, 1, 0}, // Up vector
+        80.0f // FOV
+    };
+}
+
 void mousePressed(){
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
@@ -144,7 +159,7 @@ void mousePressed(){
                 gameState = GAME_STATE_MENU;
                 break;
             case GAME_STATE_MENU:
-                // Here you would typically gather input for rows, columns, and players
+                initializeCamera(6, 6); // Initialize camera based on user input
                 Game::instance().initialize(6, 6, 3); // Example initialization
                 gameState = GAME_STATE_PLAYING;
                 break;

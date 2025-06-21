@@ -43,7 +43,8 @@ class Cell {
 public:
     int x, y, l, p;
     Mesh SphereMesh;
-    Model SphereModel;
+    Material coreMaterial;
+    Material auraMaterial;
     std::vector<Cell*> neighbors;
 
     Cell(int x_, int y_);
@@ -101,9 +102,15 @@ public:
 
 extern std::queue<PendingExplosion> explosionQueue;
 extern std::queue<PendingExplosion> nextQueue;
-extern Shader cellShader;
-extern int baseColorLoc;
-extern int timeLoc;
+
+extern Shader coreShader;
+extern Shader auraShader;
+extern int baseColorLocCore;
+extern int baseColorLocAura;
+extern int timeLocAura;
+extern int mvpLocCore;
+extern int mvpLocAura;
+extern Camera3D camera;
 float shakeStengthFromLevel(int level, int neighborCount);
 
 void mousePressed();
