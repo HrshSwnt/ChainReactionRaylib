@@ -144,7 +144,7 @@ void initializeCamera(int rows, int cols) {
 
     // Camera looking down from above (top-down view)
     camera = {
-        {xOffset, yOffset, -std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position above the center
+        {xOffset, yOffset, std::max(static_cast<float>(rows), static_cast<float>(cols)) * SPACING}, // Position in front of the center
         {xOffset, yOffset, zOffset}, // Target is the center of the grid
         {0, 1, 0}, // Up vector
         80.0f // FOV
