@@ -71,6 +71,7 @@ int main ()
 				drawPlaying();
 				drawValidCursor();
 				moveCameraviaRightClick();
+				resetCameraviaMiddleClick();
 				break;
 			case GAME_STATE_GAME_OVER:
 				drawGameOver();

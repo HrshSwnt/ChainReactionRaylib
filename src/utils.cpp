@@ -151,6 +151,18 @@ void initializeCamera(int rows, int cols) {
     };
 }
 
+void resetCameraviaMiddleClick() {
+    // Reset camera to the initial position
+    float xOffset = Game::instance().rows * SPACING / 2;
+    float yOffset = Game::instance().cols * SPACING / 2;
+    float zOffset = depth / 2;
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
+        camera.position = {xOffset, yOffset, std::max(static_cast<float>(Game::instance().rows), static_cast<float>(Game::instance().cols)) * SPACING};
+        camera.target = {xOffset, yOffset, zOffset};
+    }
+}
+
 void moveCameraviaRightClick() {
     static Vector2 lastMousePos = {0, 0};
     static bool dragging = false;
