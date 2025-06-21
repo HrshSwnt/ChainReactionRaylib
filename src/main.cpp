@@ -16,6 +16,7 @@ int frameCount;
 std::queue<PendingExplosion> explosionQueue;
 std::queue<PendingExplosion> nextQueue;
 Shader cellShader;
+int timeLoc;
 int baseColorLoc;
 int main ()
 {
@@ -32,6 +33,7 @@ int main ()
 	// Load resources, initialize game state, etc.
 	SearchAndSetResourceDir("resources");
 	cellShader = LoadShader("cell.vs", "cell.fs");
+	timeLoc = GetShaderLocation(cellShader, "time");
 	baseColorLoc = GetShaderLocation(cellShader, "baseColor");
 
 	// game loop

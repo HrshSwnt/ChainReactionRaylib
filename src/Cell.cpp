@@ -1,5 +1,9 @@
 #include "main.hpp"
-Cell::Cell(int x_, int y_) : x(x_), y(y_), l(0), p(0) {}
+Cell::Cell(int x_, int y_) : x(x_), y(y_), l(0), p(0) {
+    SphereMesh = GenMeshSphere(SphereRadius, SPHERE_SEGMENTS, SPHERE_SEGMENTS);
+    SphereModel = LoadModelFromMesh(SphereMesh);
+    SphereModel.materials[0].shader = cellShader;
+}
 
 void Cell::drawCell() const {
     if (p < 1 || p >= colors.size()) return;
@@ -11,19 +15,20 @@ void Cell::drawCell() const {
 
     float shakeStrength = shakeStengthFromLevel(l, neighbors.size());
 
+    float time = GetTime();
+    SetShaderValue(cellShader, timeLoc, &time, SHADER_UNIFORM_FLOAT);
     Vector3 rgb = {(float)cellColor.r / 255.0f, (float)cellColor.g / 255.0f, (float)cellColor.b / 255.0f};
     SetShaderValue(cellShader, baseColorLoc, &rgb, SHADER_UNIFORM_VEC3);
 
-    BeginShaderMode(cellShader);
     for (int i = 0; i < l; i++) {
         float t = getFrameCount() * 0.05f + i * 10;
         float offsetX = shakeStrength * sinf(t + i );
         float offsetY = shakeStrength * cosf(t + i * 1.3f);
         float offsetZ = -i * 15 + shakeStrength * sinf(t + i * 0.7f);
-
-        DrawSphere({cx + offsetX, cy + offsetY, cz + offsetZ}, SphereRadius, cellColor);
+        Vector3 pos = {cx + offsetX, cy + offsetY, cz + offsetZ};
+        Matrix transform = MatrixTranslate(pos.x, pos.y, pos.z);
+        DrawMesh(SphereMesh, SphereModel.materials[0], transform);
     }
-    EndShaderMode();
 }
 
 

@@ -5,12 +5,14 @@
 #include <string>
 #include <queue>
 #include "raylib.h"
+#include "raymath.h"
 #define SPACING 100
 #define depth 100
 #define MIN_SHAKE_STRENGTH 1.0f
 #define MAX_SHAKE_STRENGTH 5.0f
 #define ExplosionDuration 30.0f
 #define SphereRadius 20
+#define SPHERE_SEGMENTS 64
 
 
 
@@ -40,6 +42,8 @@ std::string PlayerIDtoName(int playerID);
 class Cell {
 public:
     int x, y, l, p;
+    Mesh SphereMesh;
+    Model SphereModel;
     std::vector<Cell*> neighbors;
 
     Cell(int x_, int y_);
@@ -99,6 +103,7 @@ extern std::queue<PendingExplosion> explosionQueue;
 extern std::queue<PendingExplosion> nextQueue;
 extern Shader cellShader;
 extern int baseColorLoc;
+extern int timeLoc;
 float shakeStengthFromLevel(int level, int neighborCount);
 
 void mousePressed();
