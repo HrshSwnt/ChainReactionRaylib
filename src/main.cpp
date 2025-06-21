@@ -70,6 +70,7 @@ int main ()
 			case GAME_STATE_PLAYING:
 				drawPlaying();
 				drawValidCursor();
+				moveCameraviaRightClick();
 				break;
 			case GAME_STATE_GAME_OVER:
 				drawGameOver();

@@ -151,6 +151,67 @@ void initializeCamera(int rows, int cols) {
     };
 }
 
+void moveCameraviaRightClick() {
+    static Vector2 lastMousePos = {0, 0};
+    static bool dragging = false;
+
+    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+        Vector2 mousePos = GetMousePosition();
+        if (!dragging) {
+            lastMousePos = mousePos;
+            dragging = true;
+        } else {
+            float dx = mousePos.x - lastMousePos.x;
+            float dy = mousePos.y - lastMousePos.y;
+
+            // Sensitivity factor
+            float sensitivity = 0.005f;
+
+            // Calculate horizontal rotation (around Y axis)
+            float angleY = -dx * sensitivity;
+            // Calculate vertical rotation (around X axis)
+            float angleX = -dy * sensitivity;
+
+            // Vector from target to camera
+            Vector3 dir = Vector3Subtract(camera.position, camera.target);
+
+            // Horizontal rotation (Y axis)
+            float cosY = cosf(angleY);
+            float sinY = sinf(angleY);
+            float x = dir.x * cosY - dir.z * sinY;
+            float z = dir.x * sinY + dir.z * cosY;
+            dir.x = x;
+            dir.z = z;
+
+            // Vertical rotation (X axis)
+            Vector3 right = Vector3CrossProduct(camera.up, dir);
+            right = Vector3Normalize(right);
+            float cosX = cosf(angleX);
+            float sinX = sinf(angleX);
+            Vector3 newDir = {
+                dir.x * cosX + camera.up.x * sinX,
+                dir.y * cosX + camera.up.y * sinX,
+                dir.z * cosX + camera.up.z * sinX
+            };
+
+            // Prevent flipping over (limit vertical angle)
+            float maxPitch = 1.5f; // ~85 degrees
+            Vector3 forward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
+            float pitch = asinf(forward.y);
+            float newPitch = asinf(Vector3Normalize(Vector3Subtract(camera.target, Vector3Add(camera.target, newDir))).y);
+            if (fabsf(newPitch) < maxPitch) {
+                dir = newDir;
+            }
+
+            camera.position = Vector3Add(camera.target, dir);
+
+            lastMousePos = mousePos;
+        }
+    } else {
+        dragging = false;
+    }
+}
+
 void mousePressed(){
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();

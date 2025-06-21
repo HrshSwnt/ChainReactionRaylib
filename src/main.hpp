@@ -122,3 +122,5 @@ void drawGameOver();
 void drawExit();
 void drawValidCursor();
 void drawExplosions();
+void initializeCamera();
+void moveCameraviaRightClick();
