@@ -30,6 +30,7 @@ int main ()
 
 	// Create the window and OpenGL context
 	InitWindow(1920, 1080, "Hello Raylib");
+	ToggleFullscreen(); // Set the window to fullscreen mode
 	SetTargetFPS(60);	// Set the target frames per second to 60
 
 	frameCount = 0;
