@@ -1,13 +1,15 @@
-#version 330
+// cell_aura.vs - GLSL ES 1.0
+
+precision mediump float;
 
 uniform mat4 mvp;
 uniform float time;
 
-in vec3 vertexPosition;
-in vec3 vertexNormal;
+attribute vec3 vertexPosition;
+attribute vec3 vertexNormal;
 
-out vec3 fragNormal;
-out vec4 fragPosition; // Pass to FS for depth-based fade
+varying vec3 fragNormal;
+varying vec4 fragPosition; // Pass to FS for depth-based fade
 
 void main() {
     float pulseScale = 1.2 + 0.1 * sin(time * 3.0);

@@ -1,11 +1,13 @@
-#version 330
+// GLSL ES 1.0 Vertex Shader
+
+precision mediump float;
 
 uniform mat4 mvp;
 
-in vec3 vertexPosition;
-in vec3 vertexNormal;
+attribute vec3 vertexPosition;
+attribute vec3 vertexNormal;
 
-out vec3 fragNormal;
+varying vec3 fragNormal;
 
 void main() {
     fragNormal = vertexNormal;
