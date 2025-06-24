@@ -1,6 +1,5 @@
 #include "main.hpp"
 
-
 std::vector<Color> colors = {
     RED, GREEN, BLUE, YELLOW, PURPLE, ORANGE, PINK, BROWN, GRAY
 };
@@ -43,11 +42,14 @@ void drawStart() {
 }
 
 void drawMenu() {
-    DrawText("Menu", GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
-    DrawText("Enter the number of rows", GetScreenWidth()/2, GetScreenHeight()/2 + 30, 20, WHITE);
-    DrawText("Enter the number of columns", GetScreenWidth()/2, GetScreenHeight()/2 + 60, 20, WHITE);
-    DrawText("Enter the number of players", GetScreenWidth()/2, GetScreenHeight()/2 + 90, 20, WHITE);
-    DrawText("Click to start the game", GetScreenWidth()/2, GetScreenHeight()/2 + 120, 20, WHITE);
+    DrawRectangleRec(menuRect, Fade(BLACK, 0.8f));
+    DrawRectangleLinesEx(menuRect, 2, WHITE); // Draw border
+    DrawText("Menu", menuRect.x + menuRect.width / 2.0f - MeasureText("Menu", 32) / 2, menuRect.y + 30, 32, WHITE);
+    DrawText("Welcome to the Game!", menuRect.x + menuRect.width / 2.0f - MeasureText("Welcome to the Game!", 20) / 2, menuRect.y + 30 + 32 + 20, 20, WHITE);
+    GuiSliderBar(rowSliderRect, "Rows ", std::to_string(static_cast<int>(rowValue)).c_str(), &rowValue, MIN_ROWS, MAX_ROWS);
+    GuiSliderBar(colSliderRect, "Columns ", std::to_string(static_cast<int>(colValue)).c_str(), &colValue, MIN_COLS, MAX_COLS);
+    GuiSliderBar(playerSliderRect, "Players ", std::to_string(static_cast<int>(playerValue)).c_str(), &playerValue, MIN_PLAYERS, MAX_PLAYERS);
+    GuiButton( buttonRect, "Start Game");
 }
 
 void drawPlaying() {
@@ -62,6 +64,8 @@ void drawGameOver() {
     drawPlaying();
     int winner = Game::instance().getPlayer();
     DrawText(("Game Over! Player " + PlayerIDtoName(winner) + " wins!").c_str(), GetScreenWidth()/2, GetScreenHeight()-50, 20, WHITE);
+
+    GuiButton(restartButtonRect, "Restart Game");
 }
 
 void drawExit() {
@@ -234,9 +238,14 @@ void mousePressed(){
                 gameState = GAME_STATE_MENU;
                 break;
             case GAME_STATE_MENU:
-                initializeCamera(6, 6); // Initialize camera based on user input
-                Game::instance().initialize(6, 6, 3); // Example initialization
-                gameState = GAME_STATE_PLAYING;
+                if (CheckCollisionPointRec(mousePos, buttonRect)) {
+                    gameState = GAME_STATE_PLAYING;
+                    int rows = static_cast<int>(rowValue);
+                    int cols = static_cast<int>(colValue);
+                    int players = static_cast<int>(playerValue);
+                    initializeCamera(rows, cols); // Initialize camera based on user input
+                    Game::instance().initialize(rows, cols, players); // Example initialization
+                }
                 break;
             case GAME_STATE_PLAYING:
                 if (explosionQueue.empty()) {
@@ -246,7 +255,11 @@ void mousePressed(){
                 }
                 break;
             case GAME_STATE_GAME_OVER:
-                gameState = GAME_STATE_EXIT; // Or restart the game
+                if (CheckCollisionPointRec(mousePos, restartButtonRect)) {
+                    gameState = GAME_STATE_MENU; // Restart the game
+                } else {
+                    gameState = GAME_STATE_EXIT; // Exit the game
+                }
                 break;
             case GAME_STATE_EXIT:
                 CloseWindow(); // Exit the game

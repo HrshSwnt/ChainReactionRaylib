@@ -16,6 +16,15 @@ int frameCount;
 std::queue<PendingExplosion> explosionQueue;
 std::queue<PendingExplosion> nextQueue;
 
+float rowValue;
+float colValue;
+float playerValue;
+Rectangle menuRect;
+Rectangle rowSliderRect;
+Rectangle colSliderRect;
+Rectangle playerSliderRect;
+Rectangle buttonRect;
+Rectangle restartButtonRect;
 Shader coreShader;
 Shader auraShader;
 int baseColorLocCore;
@@ -35,6 +44,20 @@ int main ()
 
 	frameCount = 0;
 	gameState = GAME_STATE_START;
+
+	rowValue = 6.0f; // Default value for rows
+	colValue = 6.0f; // Default value for columns
+	playerValue = 3.0f; // Default value for players
+
+	// Make menuRect twice as big, leave space at the top
+	menuRect = { static_cast<float>(GetScreenWidth()/2 - 400), static_cast<float>(GetScreenHeight()/2 - 200), 800, 500 };
+
+	rowSliderRect = { menuRect.x + (menuRect.width - 600) / 2, menuRect.y + 200, 600, 30 };
+	colSliderRect = { menuRect.x + (menuRect.width - 600) / 2, menuRect.y + 200 + 60, 600, 30 };
+	playerSliderRect = { menuRect.x + (menuRect.width - 600) / 2, menuRect.y + 200 + 2 * 60, 600, 30 };
+	buttonRect = { menuRect.x + (menuRect.width - 300) / 2, menuRect.y + 200 + 3 * 60 + 40, 300, 50 };
+	restartButtonRect = { static_cast<float>(GetScreenWidth()/2 - 100), static_cast<float>(GetScreenHeight()/2 + 150), 200, 40 };
+
 
 	// Load resources, initialize game state, etc.
 	SearchAndSetResourceDir("resources");
@@ -57,6 +80,7 @@ int main ()
 
 		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(BLACK);
+
 
 		
 		

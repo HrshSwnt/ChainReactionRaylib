@@ -1,3 +1,5 @@
+#ifndef MAIN_HPP
+#define MAIN_HPP
 #include <vector>
 #include <numbers>
 #include <cmath>
@@ -6,6 +8,14 @@
 #include <queue>
 #include "raylib.h"
 #include "raymath.h"
+#include "raygui.h"
+
+#define MIN_ROWS 5
+#define MAX_ROWS 10
+#define MIN_COLS 5
+#define MAX_COLS 10
+#define MIN_PLAYERS 2
+#define MAX_PLAYERS 6
 #define SPACING 100
 #define depth 100
 #define MIN_SHAKE_STRENGTH 1.0f
@@ -103,6 +113,17 @@ public:
 extern std::queue<PendingExplosion> explosionQueue;
 extern std::queue<PendingExplosion> nextQueue;
 
+extern Rectangle menuRect;
+extern Rectangle rowSliderRect;
+extern Rectangle colSliderRect;
+extern Rectangle playerSliderRect;
+extern Rectangle buttonRect;
+extern Rectangle restartButtonRect;
+
+extern float rowValue;
+extern float colValue;
+extern float playerValue;
+
 extern Shader coreShader;
 extern Shader auraShader;
 extern int baseColorLocCore;
@@ -126,3 +147,5 @@ void initializeCamera();
 void moveCameraviaRightClick();
 void resetCameraviaMiddleClick();
 void zoomCameraViaScroll();
+
+#endif
