@@ -79,12 +79,12 @@ void drawValidCursor() {
         if (cell.p == 0 || cell.p == Game::instance().getPlayer()) { // Only draw cursor if the cell is empty
             Vector2 screenPos = GetMousePosition();
             DrawCircleV(screenPos, 10, GREEN);
+            return;
         }
-    } else {
-        // Draw a red circle if the cursor is out of bounds
-        Vector2 screenPos = GetMousePosition();
-        DrawCircleV(screenPos, 10, RED);
     }
+    // Draw a red circle if the cursor is out of bounds
+    Vector2 screenPos = GetMousePosition();
+    DrawCircleV(screenPos, 10, RED);
 }
 
 void drawExplosions() {
