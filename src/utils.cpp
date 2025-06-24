@@ -279,7 +279,16 @@ void mousePressed(){
             case GAME_STATE_GAME_OVER:
                 if (CheckCollisionPointRec(mousePos, restartButtonRect)) {
                     gameState = GAME_STATE_MENU; // Restart the game
-                } else {
+                } else if (CheckCollisionPointRec(mousePos, undoButtonRect)) {
+                    if (!Game::instance().undoStack.empty()) {
+                        GameState state = Game::instance().undoStack.top();
+                        explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                        Game::instance().restoreFromState(state);
+                        Game::instance().undoStack.pop();
+                        Game::instance().redoStack.push(state); // Push to redo stack
+                    }
+                } 
+                else {
                     gameState = GAME_STATE_EXIT; // Exit the game
                 }
                 break;
