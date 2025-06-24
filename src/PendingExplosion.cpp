@@ -7,6 +7,7 @@ bool PendingExplosion::isComplete() {
     return (getFrameCount() - frameStarted) >= ExplosionDuration;
 }
 
+
 void PendingExplosion::update() {
     float progress = static_cast<float>(getFrameCount() - frameStarted) / ExplosionDuration;
     if (progress > 1.0f) {

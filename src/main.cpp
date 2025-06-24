@@ -14,7 +14,6 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 GAME_STATE gameState;
 int frameCount;
 std::queue<PendingExplosion> explosionQueue;
-std::queue<PendingExplosion> nextQueue;
 
 float rowValue;
 float colValue;
@@ -25,6 +24,8 @@ Rectangle colSliderRect;
 Rectangle playerSliderRect;
 Rectangle buttonRect;
 Rectangle restartButtonRect;
+Rectangle undoButtonRect;
+Rectangle redoButtonRect;
 Shader coreShader;
 Shader auraShader;
 int baseColorLocCore;
@@ -58,6 +59,10 @@ int main ()
 	buttonRect = { menuRect.x + (menuRect.width - 300) / 2, menuRect.y + 200 + 3 * 60 + 40, 300, 50 };
 	restartButtonRect = { static_cast<float>(GetScreenWidth()/2 - 100), static_cast<float>(GetScreenHeight()/2 + 150), 200, 40 };
 
+
+	// draw the undo and redo buttons at the very left of the screen relative to height, under each other
+	redoButtonRect = { 10, static_cast<float>(GetScreenHeight() - 50), 80, 40 };
+	undoButtonRect = { 10, static_cast<float>(GetScreenHeight() - 100), 80, 40 };
 
 	// Load resources, initialize game state, etc.
 	SearchAndSetResourceDir("resources");

@@ -18,6 +18,9 @@ void Game::initialize(int r, int c, int p){
     pendingTurnChange = false;
     skipExplosions = false;
 
+    undoStack = std::stack<GameState>();
+    redoStack = std::stack<GameState>();
+
     // reset the board
     Board.clear();
 
@@ -129,6 +132,9 @@ void Game::press(float x, float y) {
         return; // Out of bounds
     }
     if (X >= 0 && X < rows && Y >= 0 && Y < cols && currentPlayer >= 0 && currentPlayer < playerCount) {
+        // Push a copy of Board into undoStack
+        undoStack.push(GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions));
+
         if (Board[X][Y].incr(getPlayer(), true)) {
             turns++;
             if (explosionQueue.empty()) {
@@ -141,6 +147,9 @@ void Game::press(float x, float y) {
 }
 
 int Game::intermediaryGameEndCheck() {
+    if (Players.size() == 1) {
+        return Players.front(); // Return the winning player ID
+    }
     if (turns > playerCount){
         std::vector<int> p_count;
         p_count.resize(playerCount, 0);
@@ -168,6 +177,9 @@ int Game::intermediaryGameEndCheck() {
 }
 
 int Game::gameEndCheck() {
+    if (Players.size() == 1) {
+        return Players.front(); // Return the winning player ID
+    }
     if (turns > playerCount && explosionQueue.empty()) {
         std::vector<int> p_count;
         p_count.resize(playerCount, 0);

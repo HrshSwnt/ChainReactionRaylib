@@ -6,6 +6,7 @@
 #include <list>
 #include <string>
 #include <queue>
+#include <stack>
 #include "raylib.h"
 #include "raymath.h"
 #include "raygui.h"
@@ -65,9 +66,23 @@ public:
     Vector3 getCenter() const;
 };
 
+class GameState {
+public:
+    std::vector<std::vector<Cell>> Board;
+    std::list<int> Players;
+    int currentPlayer;
+    bool pendingTurnChange;
+    int turns;
+    bool skipExplosions;
+    GameState(const std::vector<std::vector<Cell>>& board, const std::list<int>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
+        : Board(board), Players(players), currentPlayer(currentPlayer_), pendingTurnChange(pendingTurnChange_), turns(turns_), skipExplosions(skipExplosions_) {}
+};
+
 class Game {
 public:
     std::vector<std::vector<Cell>> Board;
+    std::stack<GameState> undoStack;
+    std::stack<GameState> redoStack;
     int rows;
     int cols;
     int playerCount;
@@ -85,6 +100,14 @@ public:
     void press(float x, float y);
     int intermediaryGameEndCheck();
     int gameEndCheck();
+    void restoreFromState(const GameState& state) {
+        Board = state.Board;
+        Players = state.Players;
+        currentPlayer = state.currentPlayer;
+        pendingTurnChange = state.pendingTurnChange;
+        turns = state.turns;
+        skipExplosions = state.skipExplosions;
+    }
     Vector2 screenToGrid(Vector2 screenPos) const;
 private:
     Game();
@@ -107,11 +130,11 @@ public:
     bool isComplete();
     void update();
     void complete();
+    void resetExplosionQueue();
 };
 
 
 extern std::queue<PendingExplosion> explosionQueue;
-extern std::queue<PendingExplosion> nextQueue;
 
 extern Rectangle menuRect;
 extern Rectangle rowSliderRect;
@@ -119,6 +142,8 @@ extern Rectangle colSliderRect;
 extern Rectangle playerSliderRect;
 extern Rectangle buttonRect;
 extern Rectangle restartButtonRect;
+extern Rectangle undoButtonRect;
+extern Rectangle redoButtonRect;
 
 extern float rowValue;
 extern float colValue;
