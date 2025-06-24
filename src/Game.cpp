@@ -45,13 +45,39 @@ void Game::initialize(int r, int c, int p){
 }
 
 int Game::getPlayer() const {
-    if (currentPlayer < 0 || currentPlayer >= playerCount) {
+    if (Players.empty() || currentPlayer < 0 || currentPlayer >= Players.size()) {
         return -1; // Invalid player ID
     }
     auto it = Players.begin();
     std::advance(it, currentPlayer);
     return *it; // Return the current player's ID
 }
+
+void Game::changePlayer() {
+    if (Players.empty()) return;
+
+    auto it = Players.begin();
+    std::advance(it, currentPlayer);
+    int currentID = *it;
+
+    // Find the next higher player ID
+    auto nextIt = Players.begin();
+    int idx = 0;
+    bool found = false;
+    for (auto iter = Players.begin(); iter != Players.end(); ++iter, ++idx) {
+        if (*iter > currentID) {
+            nextIt = iter;
+            currentPlayer = idx;
+            found = true;
+            break;
+        }
+    }
+    // If not found, wrap to the smallest ID (begin)
+    if (!found) {
+        currentPlayer = 0;
+    }
+}
+
 
 void Game::drawGame() const {
     
@@ -120,14 +146,6 @@ void Game::drawGame() const {
     DrawText(cursor_info.c_str(), 10, windowHeight - 30, 20, WHITE);
 }
 
-void Game::changePlayer() {
-    int currentPlayerID = getPlayer();
-    currentPlayer = (currentPlayer + 1) % Players.size();
-    // while (getPlayer() == currentPlayerID && Players.size() > 1) {
-    //     // If the player didn't change, skip to the next player
-    //     currentPlayer = (currentPlayer + 1) % Players.size();
-    // }
-}
 
 void Game::press(float x, float y) {
     Vector2 gridPos = screenToGrid({x, y});
