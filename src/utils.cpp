@@ -58,6 +58,20 @@ void drawPlaying() {
     DrawText(("Current Player: " + playerName).c_str(), GetScreenWidth()/2, 30, 20, WHITE);
     GuiButton(undoButtonRect, "Undo");
     GuiButton(redoButtonRect, "Redo");
+    // show redo and undo stack size
+    int textPadding = 10;
+    int undoTextWidth = MeasureText(("Undo Stack Size: " + std::to_string(Game::instance().undoStack.size())).c_str(), 20);
+    int redoTextWidth = MeasureText(("Redo Stack Size: " + std::to_string(Game::instance().redoStack.size())).c_str(), 20);
+
+    DrawText(("Undo Stack Size: " + std::to_string(Game::instance().undoStack.size())).c_str(),
+             GetScreenWidth() - undoTextWidth - textPadding,
+             textPadding,
+             20, WHITE);
+
+    DrawText(("Redo Stack Size: " + std::to_string(Game::instance().redoStack.size())).c_str(),
+             GetScreenWidth() - redoTextWidth - textPadding,
+             textPadding + 30,
+             20, WHITE);
     Game::instance().drawGame();
 }
 
@@ -257,20 +271,19 @@ void mousePressed(){
                     if (!Game::instance().undoStack.empty()) {
                         GameState state = Game::instance().undoStack.top();
                         explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                        Game::instance().redoStack.push(Game::instance().getCurrentState()); // Push current state to redo stacks
                         Game::instance().restoreFromState(state);
                         Game::instance().undoStack.pop();
-                        Game::instance().redoStack.push(state); // Push to redo stack
                     }
                 } else if (CheckCollisionPointRec(mousePos, redoButtonRect)) {
                     if (!Game::instance().redoStack.empty()) {
                         GameState state = Game::instance().redoStack.top();
                         explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                        Game::instance().undoStack.push(Game::instance().getCurrentState()); // Push current state to undo stack
                         Game::instance().restoreFromState(state);
                         Game::instance().redoStack.pop();
-                        Game::instance().undoStack.push(state); // Push to undo stack
                     }
-                }
-                if (explosionQueue.empty()) {
+                } else if (explosionQueue.empty()) {
                     Game::instance().press(mousePos.x, mousePos.y);
                 } else {
                     Game::instance().skipExplosions = true; // Skip explosions if any are pending

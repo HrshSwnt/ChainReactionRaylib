@@ -100,6 +100,9 @@ public:
     void press(float x, float y);
     int intermediaryGameEndCheck();
     int gameEndCheck();
+    GameState getCurrentState() const {
+        return GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions);
+    }
     void restoreFromState(const GameState& state) {
         Board = state.Board;
         Players = state.Players;

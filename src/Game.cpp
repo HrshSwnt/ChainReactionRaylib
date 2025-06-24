@@ -123,10 +123,10 @@ void Game::drawGame() const {
 void Game::changePlayer() {
     int currentPlayerID = getPlayer();
     currentPlayer = (currentPlayer + 1) % Players.size();
-    while (getPlayer() == currentPlayerID && Players.size() > 1) {
-        // If the player didn't change, skip to the next player
-        currentPlayer = (currentPlayer + 1) % Players.size();
-    }
+    // while (getPlayer() == currentPlayerID && Players.size() > 1) {
+    //     // If the player didn't change, skip to the next player
+    //     currentPlayer = (currentPlayer + 1) % Players.size();
+    // }
 }
 
 void Game::press(float x, float y) {
@@ -138,9 +138,13 @@ void Game::press(float x, float y) {
     }
     if (X >= 0 && X < rows && Y >= 0 && Y < cols && currentPlayer >= 0 && currentPlayer < playerCount) {
         // Push a copy of Board into undoStack
+        
         undoStack.push(GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions));
 
         if (Board[X][Y].incr(getPlayer(), true)) {
+            if (redoStack.size() > 0) {
+                redoStack = std::stack<GameState>(); // Clear redo stack if a new action is taken
+            }
             turns++;
             if (explosionQueue.empty()) {
                 changePlayer();
