@@ -143,7 +143,8 @@ void Game::drawGame() const {
         DrawText(playerText.c_str(), 10, 20 * playerID, 20, playerColor);
     }
     std::string cursor_info = "Cursor is on cell: (" + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).x)) + ", " + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).y)) + ")";
-    DrawText(cursor_info.c_str(), 10, windowHeight - 30, 20, WHITE);
+    int textWidth = MeasureText(cursor_info.c_str(), 20);
+    DrawText(cursor_info.c_str(), windwowWidth - textWidth - 10, windowHeight - 30, 20, WHITE);
 }
 
 

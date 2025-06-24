@@ -39,7 +39,11 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1920, 1080, "Hello Raylib");
+	// Get the current monitor's width and height to set window size dynamically
+	int monitor = GetCurrentMonitor();
+	int screenWidth = GetMonitorWidth(monitor);
+	int screenHeight = GetMonitorHeight(monitor);
+	InitWindow(screenWidth, screenHeight, "Hello Raylib");
 	ToggleFullscreen(); // Set the window to fullscreen mode
 	SetTargetFPS(60);	// Set the target frames per second to 60
 
