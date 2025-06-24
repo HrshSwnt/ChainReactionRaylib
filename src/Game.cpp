@@ -18,6 +18,9 @@ void Game::initialize(int r, int c, int p){
     pendingTurnChange = false;
     skipExplosions = false;
 
+    // reset the board
+    Board.clear();
+
     Board.resize(rows, std::vector<Cell>(cols, Cell(0, 0)));
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
