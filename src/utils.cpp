@@ -286,9 +286,9 @@ void mousePressed(){
                         Game::instance().restoreFromState(state);
                         Game::instance().undoStack.pop();
                         Game::instance().redoStack.push(state); // Push to redo stack
+                        gameState = GAME_STATE_PLAYING; // Go back to playing state
                     }
-                } 
-                else {
+                } else {
                     gameState = GAME_STATE_EXIT; // Exit the game
                 }
                 break;

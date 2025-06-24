@@ -121,7 +121,12 @@ void Game::drawGame() const {
 }
 
 void Game::changePlayer() {
+    int currentPlayerID = getPlayer();
     currentPlayer = (currentPlayer + 1) % Players.size();
+    while (getPlayer() == currentPlayerID && Players.size() > 1) {
+        // If the player didn't change, skip to the next player
+        currentPlayer = (currentPlayer + 1) % Players.size();
+    }
 }
 
 void Game::press(float x, float y) {
