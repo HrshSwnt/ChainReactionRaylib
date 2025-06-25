@@ -40,7 +40,7 @@ int main ()
 
 	// Create the window and OpenGL context
 	// Get the current monitor's width and height to set window size dynamically
-	InitWindow(1280, 720, "Chain Reaction Raylib"); // Initial dummy size, overridden by canvas style in WASM
+	InitWindow(1920, 1080, "Chain Reaction Raylib"); // Initial dummy size, overridden by canvas style in WASM
 	SetTargetFPS(60);
 
 
@@ -52,18 +52,7 @@ int main ()
 	playerValue = 3.0f; // Default value for players
 
 	// Make menuRect twice as big, leave space at the top
-	menuRect = { static_cast<float>(GetScreenWidth()/2 - 400), static_cast<float>(GetScreenHeight()/2 - 200), 800, 500 };
-
-	rowSliderRect = { menuRect.x + (menuRect.width - 600) / 2, menuRect.y + 200, 600, 30 };
-	colSliderRect = { menuRect.x + (menuRect.width - 600) / 2, menuRect.y + 200 + 60, 600, 30 };
-	playerSliderRect = { menuRect.x + (menuRect.width - 600) / 2, menuRect.y + 200 + 2 * 60, 600, 30 };
-	buttonRect = { menuRect.x + (menuRect.width - 300) / 2, menuRect.y + 200 + 3 * 60 + 40, 300, 50 };
-	restartButtonRect = { static_cast<float>(GetScreenWidth()/2 - 100), static_cast<float>(GetScreenHeight()/2 + 150), 200, 40 };
-
-
-	// draw the undo and redo buttons at the very left of the screen relative to height, under each other
-	redoButtonRect = { 10, static_cast<float>(GetScreenHeight() - 50), 80, 40 };
-	undoButtonRect = { 10, static_cast<float>(GetScreenHeight() - 100), 80, 40 };
+	resizeAssets(GetScreenWidth(), GetScreenHeight());
 
 	// Load resources, initialize game state, etc.
 	SearchAndSetResourceDir("resources");
