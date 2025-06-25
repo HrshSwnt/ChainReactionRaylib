@@ -1,11 +1,22 @@
+#ifndef MAIN_HPP
+#define MAIN_HPP
 #include <vector>
 #include <numbers>
 #include <cmath>
 #include <list>
 #include <string>
 #include <queue>
+#include <stack>
 #include "raylib.h"
 #include "raymath.h"
+#include "raygui.h"
+
+#define MIN_ROWS 5
+#define MAX_ROWS 10
+#define MIN_COLS 5
+#define MAX_COLS 10
+#define MIN_PLAYERS 2
+#define MAX_PLAYERS 6
 #define SPACING 100
 #define depth 100
 #define MIN_SHAKE_STRENGTH 1.0f
@@ -55,9 +66,23 @@ public:
     Vector3 getCenter() const;
 };
 
+class GameState {
+public:
+    std::vector<std::vector<Cell>> Board;
+    std::list<int> Players;
+    int currentPlayer;
+    bool pendingTurnChange;
+    int turns;
+    bool skipExplosions;
+    GameState(const std::vector<std::vector<Cell>>& board, const std::list<int>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
+        : Board(board), Players(players), currentPlayer(currentPlayer_), pendingTurnChange(pendingTurnChange_), turns(turns_), skipExplosions(skipExplosions_) {}
+};
+
 class Game {
 public:
     std::vector<std::vector<Cell>> Board;
+    std::stack<GameState> undoStack;
+    std::stack<GameState> redoStack;
     int rows;
     int cols;
     int playerCount;
@@ -75,6 +100,17 @@ public:
     void press(float x, float y);
     int intermediaryGameEndCheck();
     int gameEndCheck();
+    GameState getCurrentState() const {
+        return GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions);
+    }
+    void restoreFromState(const GameState& state) {
+        Board = state.Board;
+        Players = state.Players;
+        currentPlayer = state.currentPlayer;
+        pendingTurnChange = state.pendingTurnChange;
+        turns = state.turns;
+        skipExplosions = state.skipExplosions;
+    }
     Vector2 screenToGrid(Vector2 screenPos) const;
 private:
     Game();
@@ -97,11 +133,24 @@ public:
     bool isComplete();
     void update();
     void complete();
+    void resetExplosionQueue();
 };
 
 
 extern std::queue<PendingExplosion> explosionQueue;
-extern std::queue<PendingExplosion> nextQueue;
+
+extern Rectangle menuRect;
+extern Rectangle rowSliderRect;
+extern Rectangle colSliderRect;
+extern Rectangle playerSliderRect;
+extern Rectangle buttonRect;
+extern Rectangle restartButtonRect;
+extern Rectangle undoButtonRect;
+extern Rectangle redoButtonRect;
+
+extern float rowValue;
+extern float colValue;
+extern float playerValue;
 
 extern Shader coreShader;
 extern Shader auraShader;
@@ -126,3 +175,5 @@ void initializeCamera();
 void moveCameraviaRightClick();
 void resetCameraviaMiddleClick();
 void zoomCameraViaScroll();
+
+#endif

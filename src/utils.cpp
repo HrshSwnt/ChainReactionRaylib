@@ -1,6 +1,5 @@
 #include "main.hpp"
 
-
 std::vector<Color> colors = {
     RED, GREEN, BLUE, YELLOW, PURPLE, ORANGE, PINK, BROWN, GRAY
 };
@@ -43,18 +42,36 @@ void drawStart() {
 }
 
 void drawMenu() {
-    DrawText("Menu", GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
-    DrawText("Enter the number of rows", GetScreenWidth()/2, GetScreenHeight()/2 + 30, 20, WHITE);
-    DrawText("Enter the number of columns", GetScreenWidth()/2, GetScreenHeight()/2 + 60, 20, WHITE);
-    DrawText("Enter the number of players", GetScreenWidth()/2, GetScreenHeight()/2 + 90, 20, WHITE);
-    DrawText("Click to start the game", GetScreenWidth()/2, GetScreenHeight()/2 + 120, 20, WHITE);
+    DrawRectangleRec(menuRect, Fade(BLACK, 0.8f));
+    DrawRectangleLinesEx(menuRect, 2, WHITE); // Draw border
+    DrawText("Menu", menuRect.x + menuRect.width / 2.0f - MeasureText("Menu", 32) / 2, menuRect.y + 30, 32, WHITE);
+    DrawText("Welcome to the Game!", menuRect.x + menuRect.width / 2.0f - MeasureText("Welcome to the Game!", 20) / 2, menuRect.y + 30 + 32 + 20, 20, WHITE);
+    GuiSliderBar(rowSliderRect, "Rows ", std::to_string(static_cast<int>(rowValue)).c_str(), &rowValue, MIN_ROWS, MAX_ROWS);
+    GuiSliderBar(colSliderRect, "Columns ", std::to_string(static_cast<int>(colValue)).c_str(), &colValue, MIN_COLS, MAX_COLS);
+    GuiSliderBar(playerSliderRect, "Players ", std::to_string(static_cast<int>(playerValue)).c_str(), &playerValue, MIN_PLAYERS, MAX_PLAYERS);
+    GuiButton( buttonRect, "Start Game");
 }
 
 void drawPlaying() {
     DrawText("Game Time", GetScreenWidth()/2, 0, 20, WHITE);
     std::string playerName = PlayerIDtoName(Game::instance().getPlayer()); // Assuming player ID 1 is the current player
     DrawText(("Current Player: " + playerName).c_str(), GetScreenWidth()/2, 30, 20, WHITE);
+    GuiButton(undoButtonRect, "Undo");
+    GuiButton(redoButtonRect, "Redo");
+    // show redo and undo stack size
+    int textPadding = 10;
+    int undoTextWidth = MeasureText(("Undo Stack Size: " + std::to_string(Game::instance().undoStack.size())).c_str(), 20);
+    int redoTextWidth = MeasureText(("Redo Stack Size: " + std::to_string(Game::instance().redoStack.size())).c_str(), 20);
 
+    DrawText(("Undo Stack Size: " + std::to_string(Game::instance().undoStack.size())).c_str(),
+             GetScreenWidth() - undoTextWidth - textPadding,
+             textPadding,
+             20, WHITE);
+
+    DrawText(("Redo Stack Size: " + std::to_string(Game::instance().redoStack.size())).c_str(),
+             GetScreenWidth() - redoTextWidth - textPadding,
+             textPadding + 30,
+             20, WHITE);
     Game::instance().drawGame();
 }
 
@@ -62,6 +79,8 @@ void drawGameOver() {
     drawPlaying();
     int winner = Game::instance().getPlayer();
     DrawText(("Game Over! Player " + PlayerIDtoName(winner) + " wins!").c_str(), GetScreenWidth()/2, GetScreenHeight()-50, 20, WHITE);
+
+    GuiButton(restartButtonRect, "Restart Game");
 }
 
 void drawExit() {
@@ -122,6 +141,9 @@ void drawExplosions() {
                 explosionQueue.push(explosion);
                 explosionQueue.pop();
             }
+        }
+        if (Game::instance().intermediaryGameEndCheck() > 0) {
+            gameState = GAME_STATE_GAME_OVER;
         }
     }
     if (end) {
@@ -234,19 +256,54 @@ void mousePressed(){
                 gameState = GAME_STATE_MENU;
                 break;
             case GAME_STATE_MENU:
-                initializeCamera(6, 6); // Initialize camera based on user input
-                Game::instance().initialize(6, 6, 3); // Example initialization
-                gameState = GAME_STATE_PLAYING;
+                if (CheckCollisionPointRec(mousePos, buttonRect)) {
+                    gameState = GAME_STATE_PLAYING;
+                    int rows = static_cast<int>(rowValue);
+                    int cols = static_cast<int>(colValue);
+                    int players = static_cast<int>(playerValue);
+                    initializeCamera(rows, cols); // Initialize camera based on user input
+                    explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                    Game::instance().initialize(rows, cols, players); // Example initialization
+                }
                 break;
             case GAME_STATE_PLAYING:
-                if (explosionQueue.empty()) {
+                if (CheckCollisionPointRec(mousePos, undoButtonRect)) {
+                    if (!Game::instance().undoStack.empty()) {
+                        GameState state = Game::instance().undoStack.top();
+                        explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                        Game::instance().redoStack.push(Game::instance().getCurrentState()); // Push current state to redo stacks
+                        Game::instance().restoreFromState(state);
+                        Game::instance().undoStack.pop();
+                    }
+                } else if (CheckCollisionPointRec(mousePos, redoButtonRect)) {
+                    if (!Game::instance().redoStack.empty()) {
+                        GameState state = Game::instance().redoStack.top();
+                        explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                        Game::instance().undoStack.push(Game::instance().getCurrentState()); // Push current state to undo stack
+                        Game::instance().restoreFromState(state);
+                        Game::instance().redoStack.pop();
+                    }
+                } else if (explosionQueue.empty()) {
                     Game::instance().press(mousePos.x, mousePos.y);
                 } else {
                     Game::instance().skipExplosions = true; // Skip explosions if any are pending
                 }
                 break;
             case GAME_STATE_GAME_OVER:
-                gameState = GAME_STATE_EXIT; // Or restart the game
+                if (CheckCollisionPointRec(mousePos, restartButtonRect)) {
+                    gameState = GAME_STATE_MENU; // Restart the game
+                } else if (CheckCollisionPointRec(mousePos, undoButtonRect)) {
+                    if (!Game::instance().undoStack.empty()) {
+                        GameState state = Game::instance().undoStack.top();
+                        explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
+                        Game::instance().restoreFromState(state);
+                        Game::instance().undoStack.pop();
+                        Game::instance().redoStack.push(state); // Push to redo stack
+                        gameState = GAME_STATE_PLAYING; // Go back to playing state
+                    }
+                } else {
+                    gameState = GAME_STATE_EXIT; // Exit the game
+                }
                 break;
             case GAME_STATE_EXIT:
                 CloseWindow(); // Exit the game

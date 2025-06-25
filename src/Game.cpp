@@ -18,6 +18,12 @@ void Game::initialize(int r, int c, int p){
     pendingTurnChange = false;
     skipExplosions = false;
 
+    undoStack = std::stack<GameState>();
+    redoStack = std::stack<GameState>();
+
+    // reset the board
+    Board.clear();
+
     Board.resize(rows, std::vector<Cell>(cols, Cell(0, 0)));
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
@@ -39,13 +45,39 @@ void Game::initialize(int r, int c, int p){
 }
 
 int Game::getPlayer() const {
-    if (currentPlayer < 0 || currentPlayer >= playerCount) {
+    if (Players.empty() || currentPlayer < 0 || currentPlayer >= Players.size()) {
         return -1; // Invalid player ID
     }
     auto it = Players.begin();
     std::advance(it, currentPlayer);
     return *it; // Return the current player's ID
 }
+
+void Game::changePlayer() {
+    if (Players.empty()) return;
+
+    auto it = Players.begin();
+    std::advance(it, currentPlayer);
+    int currentID = *it;
+
+    // Find the next higher player ID
+    auto nextIt = Players.begin();
+    int idx = 0;
+    bool found = false;
+    for (auto iter = Players.begin(); iter != Players.end(); ++iter, ++idx) {
+        if (*iter > currentID) {
+            nextIt = iter;
+            currentPlayer = idx;
+            found = true;
+            break;
+        }
+    }
+    // If not found, wrap to the smallest ID (begin)
+    if (!found) {
+        currentPlayer = 0;
+    }
+}
+
 
 void Game::drawGame() const {
     
@@ -111,12 +143,10 @@ void Game::drawGame() const {
         DrawText(playerText.c_str(), 10, 20 * playerID, 20, playerColor);
     }
     std::string cursor_info = "Cursor is on cell: (" + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).x)) + ", " + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).y)) + ")";
-    DrawText(cursor_info.c_str(), 10, windowHeight - 30, 20, WHITE);
+    int textWidth = MeasureText(cursor_info.c_str(), 20);
+    DrawText(cursor_info.c_str(), windwowWidth - textWidth - 10, windowHeight - 30, 20, WHITE);
 }
 
-void Game::changePlayer() {
-    currentPlayer = (currentPlayer + 1) % Players.size();
-}
 
 void Game::press(float x, float y) {
     Vector2 gridPos = screenToGrid({x, y});
@@ -126,7 +156,14 @@ void Game::press(float x, float y) {
         return; // Out of bounds
     }
     if (X >= 0 && X < rows && Y >= 0 && Y < cols && currentPlayer >= 0 && currentPlayer < playerCount) {
+        // Push a copy of Board into undoStack
+        
+        undoStack.push(GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions));
+
         if (Board[X][Y].incr(getPlayer(), true)) {
+            if (redoStack.size() > 0) {
+                redoStack = std::stack<GameState>(); // Clear redo stack if a new action is taken
+            }
             turns++;
             if (explosionQueue.empty()) {
                 changePlayer();
@@ -138,6 +175,9 @@ void Game::press(float x, float y) {
 }
 
 int Game::intermediaryGameEndCheck() {
+    if (Players.size() == 1) {
+        return Players.front(); // Return the winning player ID
+    }
     if (turns > playerCount){
         std::vector<int> p_count;
         p_count.resize(playerCount, 0);
@@ -165,6 +205,9 @@ int Game::intermediaryGameEndCheck() {
 }
 
 int Game::gameEndCheck() {
+    if (Players.size() == 1) {
+        return Players.front(); // Return the winning player ID
+    }
     if (turns > playerCount && explosionQueue.empty()) {
         std::vector<int> p_count;
         p_count.resize(playerCount, 0);
