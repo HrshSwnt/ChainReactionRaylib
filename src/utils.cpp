@@ -53,9 +53,14 @@ void drawMenu() {
 }
 
 void drawPlaying() {
-    DrawText("Game Time", GetScreenWidth()/2, 0, 20, WHITE);
-    std::string playerName = PlayerIDtoName(Game::instance().getPlayer()); // Assuming player ID 1 is the current player
-    DrawText(("Current Player: " + playerName).c_str(), GetScreenWidth()/2, 30, 20, WHITE);
+    const char* gameTimeText = "Game Time";
+    int gameTimeWidth = MeasureText(gameTimeText, 20);
+    DrawText(gameTimeText, (GetScreenWidth() - gameTimeWidth) / 2, 0, 20, WHITE);
+
+    std::string playerName = PlayerIDtoName(Game::instance().getPlayer());
+    std::string currentPlayerText = "Current Player: " + playerName;
+    int currentPlayerWidth = MeasureText(currentPlayerText.c_str(), 20);
+    DrawText(currentPlayerText.c_str(), (GetScreenWidth() - currentPlayerWidth) / 2, 30, 20, WHITE);
     GuiButton(undoButtonRect, "Undo");
     GuiButton(redoButtonRect, "Redo");
     // show redo and undo stack size

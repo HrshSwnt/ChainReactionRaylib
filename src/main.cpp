@@ -40,12 +40,9 @@ int main ()
 
 	// Create the window and OpenGL context
 	// Get the current monitor's width and height to set window size dynamically
-	int monitor = GetCurrentMonitor();
-	int screenWidth = GetMonitorWidth(monitor);
-	int screenHeight = GetMonitorHeight(monitor);
-	InitWindow(screenWidth, screenHeight, "Hello Raylib");
-	ToggleFullscreen(); // Set the window to fullscreen mode
-	SetTargetFPS(60);	// Set the target frames per second to 60
+	InitWindow(1280, 720, "Chain Reaction Raylib"); // Initial dummy size, overridden by canvas style in WASM
+	SetTargetFPS(60);
+
 
 	frameCount = 0;
 	gameState = GAME_STATE_START;
@@ -80,9 +77,21 @@ int main ()
 	mvpLocCore = GetShaderLocation(coreShader, "mvp");
 	mvpLocAura = GetShaderLocation(auraShader, "mvp");
 
+	int prevWidth = GetScreenWidth();
+	int prevHeight = GetScreenHeight();
 	// game loop
 	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{
+
+		int newWidth = GetScreenWidth();
+		int newHeight = GetScreenHeight();
+
+		if (newWidth != prevWidth || newHeight != prevHeight) {
+			SetWindowSize(newWidth, newHeight); // Update raylib's internal framebuffer size
+			prevWidth = newWidth;
+			prevHeight = newHeight;
+    }
+
 		incrementFrameCount();
 		// drawing
 		BeginDrawing();
