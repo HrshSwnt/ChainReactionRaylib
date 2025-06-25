@@ -48,40 +48,22 @@ int Game::getPlayer() const {
     if (Players.empty() || currentPlayer < 0 || currentPlayer >= Players.size()) {
         return -1; // Invalid player ID
     }
-    auto it = Players.begin();
-    std::advance(it, currentPlayer);
-    return *it; // Return the current player's ID
+    return Players[currentPlayer]; // Return the current player's ID
 }
 
 void Game::changePlayer() {
-    if (Players.empty()) return;
+    if (Players.size() < 2) return;  // Only one or zero players left
 
-    auto it = Players.begin();
-    std::advance(it, currentPlayer);
-    int currentID = *it;
-
-    // Find the next higher player ID
-    auto nextIt = Players.begin();
-    int idx = 0;
-    bool found = false;
-    for (auto iter = Players.begin(); iter != Players.end(); ++iter, ++idx) {
-        if (*iter > currentID) {
-            nextIt = iter;
-            currentPlayer = idx;
-            found = true;
-            break;
-        }
-    }
-    // If not found, wrap to the smallest ID (begin)
-    if (!found) {
+    currentPlayer++;
+    if (currentPlayer >= Players.size()) {
         currentPlayer = 0;
     }
 }
 
 
 void Game::drawGame() const {
-    
-    int windwowWidth = GetScreenWidth();
+
+    int windowWidth = GetScreenWidth();
     int windowHeight = GetScreenHeight();
     float xOffset = rows * SPACING / 2;
     float yOffset = cols * SPACING / 2;
@@ -144,7 +126,7 @@ void Game::drawGame() const {
     }
     std::string cursor_info = "Cursor is on cell: (" + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).x)) + ", " + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).y)) + ")";
     int textWidth = MeasureText(cursor_info.c_str(), 20);
-    DrawText(cursor_info.c_str(), windwowWidth - textWidth - 10, windowHeight - 30, 20, WHITE);
+    DrawText(cursor_info.c_str(), windowWidth - textWidth - 10, windowHeight - 30, 20, WHITE);
 }
 
 
@@ -173,27 +155,33 @@ void Game::press(float x, float y) {
     }
 }
 
+void Game::eliminatePlayer(int playerID) {
+    auto it = std::find(Players.begin(), Players.end(), playerID);
+    if (it != Players.end()) {
+        Players.erase(it); // Remove player ID from the list
+    }
+}
+
 int Game::intermediaryGameEndCheck() {
     if (Players.size() == 1) {
         return Players.front(); // Return the winning player ID
     }
-    if (turns > playerCount){
-        std::vector<int> p_count;
-        p_count.resize(playerCount, 0);
+    if (turns > playerCount) {
+        std::map<int, int> p_count; // Map to count players
+        for (int i = 1; i <= playerCount; ++i) {
+            p_count[i] = 0;
+        }
         for (const auto& row : Board) {
             for (const auto& cell : row) {
                 if (cell.p > 0 && cell.p <= playerCount) {
-                    p_count[cell.p - 1]++;
+                    p_count[cell.p]++;
                 }
             }
         }
 
-        for (int i = playerCount - 1; i >= 0; --i) {
+        for (int i = playerCount; i >= 1; --i) {
             if (p_count[i] == 0) {
-                Players.remove(i + 1); // Remove player ID from the list
-                if (currentPlayer >= Players.size()) {
-                    currentPlayer = 0; // Reset to the first player if current player is removed
-                }
+                eliminatePlayer(i); // Remove player ID from the list
             }
         }
         if (Players.size() == 1) {
@@ -208,22 +196,21 @@ int Game::gameEndCheck() {
         return Players.front(); // Return the winning player ID
     }
     if (turns > playerCount && explosionQueue.empty()) {
-        std::vector<int> p_count;
-        p_count.resize(playerCount, 0);
+        std::map<int, int> p_count; // Map to count players
+        for (int i = 1; i <= playerCount; ++i) {
+            p_count[i] = 0;
+        }
         for (const auto& row : Board) {
             for (const auto& cell : row) {
                 if (cell.p > 0 && cell.p <= playerCount) {
-                    p_count[cell.p - 1]++;
+                    p_count[cell.p]++;
                 }
             }
         }
 
-        for (int i = playerCount - 1; i >= 0; --i) {
+        for (int i = playerCount; i >= 1; --i) {
             if (p_count[i] == 0) {
-                Players.remove(i + 1); // Remove player ID from the list
-                if (currentPlayer >= Players.size()) {
-                    currentPlayer = 0; // Reset to the first player if current player is removed
-                }
+                eliminatePlayer(i); // Remove player ID from the list
             }
         }
         if (Players.size() == 1) {

@@ -3,10 +3,11 @@
 #include <vector>
 #include <numbers>
 #include <cmath>
-#include <list>
 #include <string>
 #include <queue>
 #include <stack>
+#include <algorithm>
+#include <map>
 #include "raylib.h"
 #include "raymath.h"
 #include "raygui.h"
@@ -69,12 +70,12 @@ public:
 class GameState {
 public:
     std::vector<std::vector<Cell>> Board;
-    std::list<int> Players;
+    std::vector<int> Players;
     int currentPlayer;
     bool pendingTurnChange;
     int turns;
     bool skipExplosions;
-    GameState(const std::vector<std::vector<Cell>>& board, const std::list<int>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
+    GameState(const std::vector<std::vector<Cell>>& board, const std::vector<int>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
         : Board(board), Players(players), currentPlayer(currentPlayer_), pendingTurnChange(pendingTurnChange_), turns(turns_), skipExplosions(skipExplosions_) {}
 };
 
@@ -86,7 +87,7 @@ public:
     int rows;
     int cols;
     int playerCount;
-    std::list<int> Players;
+    std::vector<int> Players;
     int currentPlayer;
     int turns;
     bool pendingTurnChange;
@@ -98,6 +99,7 @@ public:
     int getPlayer() const;
     void changePlayer();
     void press(float x, float y);
+    void eliminatePlayer(int playerID);
     int intermediaryGameEndCheck();
     int gameEndCheck();
     GameState getCurrentState() const {
