@@ -156,11 +156,10 @@ void Game::press(float x, float y) {
         return; // Out of bounds
     }
     if (X >= 0 && X < rows && Y >= 0 && Y < cols && currentPlayer >= 0 && currentPlayer < playerCount) {
-        // Push a copy of Board into undoStack
-        
-        undoStack.push(GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions));
+        GameState currentState = getCurrentState();
 
         if (Board[X][Y].incr(getPlayer(), true)) {
+            undoStack.push(currentState);
             if (redoStack.size() > 0) {
                 redoStack = std::stack<GameState>(); // Clear redo stack if a new action is taken
             }
