@@ -88,9 +88,10 @@ int main ()
 
 		if (newWidth != prevWidth || newHeight != prevHeight) {
 			SetWindowSize(newWidth, newHeight); // Update raylib's internal framebuffer size
+			resizeAssets(newWidth, newHeight); // Resize any assets that depend on window size
 			prevWidth = newWidth;
 			prevHeight = newHeight;
-    }
+    	}
 
 		incrementFrameCount();
 		// drawing

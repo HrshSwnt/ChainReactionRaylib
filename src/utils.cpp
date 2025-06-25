@@ -38,7 +38,11 @@ float shakeStengthFromLevel(int level, int neighborCount) {
 }
 
 void drawStart() {
-    DrawText("Click to start", GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
+    const char* text = "Click to start";
+    int textWidth = MeasureText(text, 20);
+    int x = (GetScreenWidth() - textWidth) / 2;
+    int y = GetScreenHeight() / 2;
+    DrawText(text, x, y, 20, WHITE);
 }
 
 void drawMenu() {
@@ -317,4 +321,72 @@ void mousePressed(){
                 break;
         }
     }
+}
+
+void resizeAssets(int screenWidth, int screenHeight) {
+    float baseWidth = 1920.0f;
+    float baseHeight = 1080.0f;
+    float scaleX = screenWidth / baseWidth;
+    float scaleY = screenHeight / baseHeight;
+    float uniformScale = fminf(scaleX, scaleY); // Optional: uniform scaling
+
+    // Menu box — scale proportionally, centered
+    float menuWidth = 800 * uniformScale;
+    float menuHeight = 500 * uniformScale;
+    menuRect = {
+        (screenWidth - menuWidth) / 2.0f,
+        (screenHeight - menuHeight) / 2.0f,
+        menuWidth,
+        menuHeight
+    };
+
+    // Horizontal padding inside menu
+    float sidePadding = (menuRect.width - 600 * uniformScale) / 2.0f;
+    float sliderWidth = 600 * uniformScale;
+    float sliderHeight = 30 * uniformScale;
+    float sliderSpacing = 60 * uniformScale;
+
+    rowSliderRect = {
+        menuRect.x + sidePadding,
+        menuRect.y + 200 * uniformScale,
+        sliderWidth,
+        sliderHeight
+    };
+
+    colSliderRect = rowSliderRect;
+    colSliderRect.y += sliderSpacing;
+
+    playerSliderRect = colSliderRect;
+    playerSliderRect.y += sliderSpacing;
+
+    // Start button below sliders
+    buttonRect = {
+        menuRect.x + (menuRect.width - 300 * uniformScale) / 2.0f,
+        playerSliderRect.y + sliderSpacing + 40 * uniformScale,
+        300 * uniformScale,
+        50 * uniformScale
+    };
+
+    // Restart button, centered lower on screen
+    restartButtonRect = {
+        (screenWidth - 200 * uniformScale) / 2.0f,
+        (screenHeight / 2.0f + 150 * uniformScale),
+        200 * uniformScale,
+        40 * uniformScale
+    };
+
+    // Undo / Redo buttons, bottom-left corner
+    undoButtonRect = {
+        10 * scaleX,
+        screenHeight - 100 * scaleY,
+        80 * scaleX,
+        40 * scaleY
+    };
+
+    redoButtonRect = {
+        10 * scaleX,
+        screenHeight - 50 * scaleY,
+        80 * scaleX,
+        40 * scaleY
+    };
 }

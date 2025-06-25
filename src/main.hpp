@@ -19,11 +19,11 @@
 #define MAX_PLAYERS 6
 #define SPACING 100
 #define depth 100
+#define SphereRadius 20
+#define SPHERE_SEGMENTS 64
 #define MIN_SHAKE_STRENGTH 1.0f
 #define MAX_SHAKE_STRENGTH 5.0f
 #define ExplosionDuration 30.0f
-#define SphereRadius 20
-#define SPHERE_SEGMENTS 64
 
 
 
@@ -175,5 +175,5 @@ void initializeCamera();
 void moveCameraviaRightClick();
 void resetCameraviaMiddleClick();
 void zoomCameraViaScroll();
-
+void resizeAssets(int screenWidth, int screenHeight);
 #endif
