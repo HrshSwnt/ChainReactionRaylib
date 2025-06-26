@@ -18,6 +18,8 @@
 #define MAX_COLS 10
 #define MIN_PLAYERS 2
 #define MAX_PLAYERS 6
+#define MIN_CPU_PLAYERS 1
+#define MAX_CPU_PLAYERS 5
 #define SPACING 100
 #define depth 100
 #define SphereRadius 20
@@ -67,15 +69,24 @@ public:
     Vector3 getCenter() const;
 };
 
+class Player{
+public:
+    int id;
+    bool isCPU;
+    
+    Player(int id_, bool isCPU) : id(id_), isCPU(isCPU) {}
+    int getID() const { return id; }
+    bool isCPUPlayer() const { return isCPU; }
+};
 class GameState {
 public:
     std::vector<std::vector<Cell>> Board;
-    std::vector<int> Players;
+    std::vector<Player> Players;
     int currentPlayer;
     bool pendingTurnChange;
     int turns;
     bool skipExplosions;
-    GameState(const std::vector<std::vector<Cell>>& board, const std::vector<int>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
+    GameState(const std::vector<std::vector<Cell>>& board, const std::vector<Player>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
         : Board(board), Players(players), currentPlayer(currentPlayer_), pendingTurnChange(pendingTurnChange_), turns(turns_), skipExplosions(skipExplosions_) {}
 };
 
@@ -87,7 +98,7 @@ public:
     int rows;
     int cols;
     int playerCount;
-    std::vector<int> Players;
+    std::vector<Player> Players;
     int currentPlayer;
     int turns;
     bool pendingTurnChange;

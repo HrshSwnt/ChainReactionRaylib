@@ -40,7 +40,7 @@ void Game::initialize(int r, int c, int p){
     }
     Players.clear();
     for (int i = 0; i < playerCount; ++i) {
-        Players.push_back(i + 1); // Player IDs start from 1
+        Players.push_back(Player(i + 1, false)); // Player IDs start from 1
     }
 }
 
@@ -48,7 +48,7 @@ int Game::getPlayer() const {
     if (Players.empty() || currentPlayer < 0 || currentPlayer >= Players.size()) {
         return -1; // Invalid player ID
     }
-    return Players[currentPlayer]; // Return the current player's ID
+    return Players[currentPlayer].getID(); // Return the current player's ID
 }
 
 void Game::changePlayer() {
@@ -110,19 +110,19 @@ void Game::drawGame() const {
     
     drawExplosions();
     EndMode3D();
-    for (const auto& playerID : Players) {
-        Color playerColor = PlayerIDtoColor(playerID);
-        std::string playerName = PlayerIDtoName(playerID);
+    for (const auto& player : Players) {
+        Color playerColor = PlayerIDtoColor(player.getID());
+        std::string playerName = PlayerIDtoName(player.getID());
         int count = 0;
         for (const auto& row : Board) {
             for (const auto& cell : row) {
-                if (cell.p == playerID) {
+                if (cell.p == player.getID()) {
                     count++;
                 }
             }
         }
         std::string playerText = playerName + " (" + std::to_string(count) + ")";
-        DrawText(playerText.c_str(), 10, 20 * playerID, 20, playerColor);
+        DrawText(playerText.c_str(), 10, 20 * player.getID(), 20, playerColor);
     }
     std::string cursor_info = "Cursor is on cell: (" + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).x)) + ", " + std::to_string(static_cast<int>(screenToGrid(GetMousePosition()).y)) + ")";
     int textWidth = MeasureText(cursor_info.c_str(), 20);
@@ -157,13 +157,15 @@ void Game::press(float x, float y) {
 
 void Game::eliminatePlayer(int playerID) {
     int currentPlayerID = getPlayer();
-    auto it = std::find(Players.begin(), Players.end(), playerID);
+    auto it = std::find_if(Players.begin(), Players.end(), [playerID](const Player& player) {
+        return player.getID() == playerID;
+    });
     if (it != Players.end()) {
         Players.erase(it); // Remove player ID from the list
     }
     // set currentPlayer to index of currentPlayerID in Players
     for (size_t i = 0; i < Players.size(); ++i) {
-        if (Players[i] == currentPlayerID) {
+        if (Players[i].getID() == currentPlayerID) {
             currentPlayer = static_cast<int>(i);
             break;
         }
@@ -172,7 +174,7 @@ void Game::eliminatePlayer(int playerID) {
 
 int Game::intermediaryGameEndCheck() {
     if (Players.size() == 1) {
-        return Players.front(); // Return the winning player ID
+        return Players.front().getID(); // Return the winning player ID
     }
     if (turns > playerCount) {
         std::map<int, int> p_count; // Map to count players
@@ -193,15 +195,15 @@ int Game::intermediaryGameEndCheck() {
             }
         }
         if (Players.size() == 1) {
-            return Players.front(); // Return the winning player ID
-        } 
+            return Players.front().getID(); // Return the winning player ID
+        }
     }
     return 0;
 }
 
 int Game::gameEndCheck() {
     if (Players.size() == 1) {
-        return Players.front(); // Return the winning player ID
+        return Players.front().getID(); // Return the winning player ID
     }
     if (turns > playerCount && explosionQueue.empty()) {
         std::map<int, int> p_count; // Map to count players
@@ -222,7 +224,7 @@ int Game::gameEndCheck() {
             }
         }
         if (Players.size() == 1) {
-            return Players.front(); // Return the winning player ID
+            return Players.front().getID(); // Return the winning player ID
         }
     }
     return 0;

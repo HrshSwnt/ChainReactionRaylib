@@ -1,11 +1,11 @@
 #include "main.hpp"
 
 std::vector<Color> colors = {
-    RED, GREEN, BLUE, YELLOW, PURPLE, ORANGE, PINK, BROWN, GRAY
+    RED, GREEN, BLUE, YELLOW, PURPLE, ORANGE, PINK, BROWN, GRAY, GOLD, MAGENTA, LIME, MAROON, VIOLET, DARKGREEN
 };
 
 std::vector<std::string> playerNames = {
-    "RED", "GREEN", "BLUE", "YELLOW", "PURPLE", "ORANGE", "PINK", "BROWN", "GRAY"
+    "RED", "GREEN", "BLUE", "YELLOW", "PURPLE", "ORANGE", "PINK", "BROWN", "GRAY", "GOLD", "MAGENTA", "LIME", "MAROON", "VIOLET", "DARKGREEN"
 };
 
 
