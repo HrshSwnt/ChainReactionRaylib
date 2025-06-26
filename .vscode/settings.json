@@ -81,6 +81,7 @@
 		"cinttypes": "cpp",
 		"typeinfo": "cpp",
 		"variant": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"*.m": "cpp"
 	}
 }

@@ -156,9 +156,17 @@ void Game::press(float x, float y) {
 }
 
 void Game::eliminatePlayer(int playerID) {
+    int currentPlayerID = getPlayer();
     auto it = std::find(Players.begin(), Players.end(), playerID);
     if (it != Players.end()) {
         Players.erase(it); // Remove player ID from the list
+    }
+    // set currentPlayer to index of currentPlayerID in Players
+    for (size_t i = 0; i < Players.size(); ++i) {
+        if (Players[i] == currentPlayerID) {
+            currentPlayer = static_cast<int>(i);
+            break;
+        }
     }
 }
 

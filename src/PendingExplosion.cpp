@@ -29,4 +29,5 @@ void PendingExplosion::update() {
 
 void PendingExplosion::complete() {
     target->incr(playerID, false);
+    source->p = 0;
 }

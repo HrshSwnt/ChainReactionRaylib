@@ -103,16 +103,15 @@ void drawValidCursor() {
     int Y = static_cast<int>(gridPos.y);
     
     if (X >= 0 && X < Game::instance().rows && Y >= 0 && Y < Game::instance().cols) {
-        Cell& cell = Game::instance().Board[X][Y];
-        if (cell.p == 0 || cell.p == Game::instance().getPlayer()) { // Only draw cursor if the cell is empty
-            Vector2 screenPos = GetMousePosition();
-            DrawCircleV(screenPos, 10, GREEN);
+        Cell* cell = &Game::instance().Board[X][Y];
+        // Check if the cell is empty or belongs to the current player
+        if (cell->p == 0 || cell->p == Game::instance().getPlayer()) {
+            DrawCircleV(mousePos, 10, GREEN);
             return;
         }
     }
     // Draw a red circle if the cursor is out of bounds
-    Vector2 screenPos = GetMousePosition();
-    DrawCircleV(screenPos, 10, RED);
+    DrawCircleV(mousePos, 10, RED);
 }
 
 void drawExplosions() {
@@ -163,8 +162,6 @@ void drawExplosions() {
         if (Game::instance().gameEndCheck() > 0) {
             gameState = GAME_STATE_GAME_OVER;
         }
-
-
     }
 }
 
