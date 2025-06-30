@@ -18,12 +18,15 @@ std::queue<PendingExplosion> explosionQueue;
 float rowValue;
 float colValue;
 float playerValue;
+float cpuValue;
 Rectangle menuRect;
 Rectangle rowSliderRect;
 Rectangle colSliderRect;
 Rectangle playerSliderRect;
+Rectangle CPUSliderRect;
 Rectangle buttonRect;
 Rectangle restartButtonRect;
+Rectangle exitButtonRect;
 Rectangle undoButtonRect;
 Rectangle redoButtonRect;
 Shader coreShader;
@@ -50,6 +53,7 @@ int main ()
 	rowValue = 6.0f; // Default value for rows
 	colValue = 6.0f; // Default value for columns
 	playerValue = 3.0f; // Default value for players
+	cpuValue = 1.0f; // Default value for CPU players
 
 	// Make menuRect twice as big, leave space at the top
 	resizeAssets(GetScreenWidth(), GetScreenHeight());
@@ -90,7 +94,8 @@ int main ()
 		ClearBackground(BLACK);
 
 
-		
+		// Show FPS
+		DrawFPS(10, 200);
 		
 		switch (gameState)
 		{

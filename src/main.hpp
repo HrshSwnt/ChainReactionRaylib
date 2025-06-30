@@ -16,7 +16,7 @@
 #define MAX_ROWS 10
 #define MIN_COLS 5
 #define MAX_COLS 10
-#define MIN_PLAYERS 2
+#define MIN_PLAYERS 1
 #define MAX_PLAYERS 6
 #define MIN_CPU_PLAYERS 1
 #define MAX_CPU_PLAYERS 5
@@ -69,6 +69,8 @@ public:
     Vector3 getCenter() const;
 };
 
+class GameState; // Forward declaration
+
 class Player{
 public:
     int id;
@@ -77,7 +79,10 @@ public:
     Player(int id_, bool isCPU) : id(id_), isCPU(isCPU) {}
     int getID() const { return id; }
     bool isCPUPlayer() const { return isCPU; }
+    std::pair<int, int> CPUTurn();
+    std::pair<GameState, int> simulateTurn(GameState state, int x, int y);
 };
+
 class GameState {
 public:
     std::vector<std::vector<Cell>> Board;
@@ -87,7 +92,21 @@ public:
     int turns;
     bool skipExplosions;
     GameState(const std::vector<std::vector<Cell>>& board, const std::vector<Player>& players, int currentPlayer_, bool pendingTurnChange_, int turns_, bool skipExplosions_)
-        : Board(board), Players(players), currentPlayer(currentPlayer_), pendingTurnChange(pendingTurnChange_), turns(turns_), skipExplosions(skipExplosions_) {}
+        : Board(board), Players(players), currentPlayer(currentPlayer_), pendingTurnChange(pendingTurnChange_), turns(turns_), skipExplosions(skipExplosions_) {
+            linkNeighbours();
+    }
+
+    void linkNeighbours() {
+        for (int i = 0; i < Board.size(); ++i) {
+            for (int j = 0; j < Board[i].size(); ++j) {
+                Board[i][j].neighbors.clear(); // Clear existing neighbors
+                if (i > 0) Board[i][j].addNeighbor(&Board[i - 1][j]); // Up
+                if (i < Board.size() - 1) Board[i][j].addNeighbor(&Board[i + 1][j]); // Down
+                if (j > 0) Board[i][j].addNeighbor(&Board[i][j - 1]); // Left
+                if (j < Board[i].size() - 1) Board[i][j].addNeighbor(&Board[i][j + 1]); // Right
+            }
+        }
+    }
 };
 
 class Game {
@@ -105,16 +124,35 @@ public:
     bool skipExplosions;
 
     static Game& instance();
-    void initialize(int r, int c, int p);
+    void initialize(int r, int c, int p, int cpu);
     void drawGame() const;
     int getPlayer() const;
+    Player getCurrentPlayer() const {
+        if (currentPlayer < 0 || currentPlayer >= Players.size()) {
+            return Player(-1, false); // Invalid player
+        }
+        return Players[currentPlayer];
+    }
     void changePlayer();
     void press(float x, float y);
+    void CPUpress(int X, int Y);
     void eliminatePlayer(int playerID);
     int intermediaryGameEndCheck();
     int gameEndCheck();
     GameState getCurrentState() const {
         return GameState(Board, Players, currentPlayer, pendingTurnChange, turns, skipExplosions);
+    }
+    void linkNeighbours() {
+        for (int i = 0; i < Board.size(); ++i) {
+            for (int j = 0; j < Board[i].size(); ++j) {
+
+                Board[i][j].neighbors.clear(); // Clear existing neighbors
+                if (i > 0) Board[i][j].addNeighbor(&Board[i - 1][j]); // Up
+                if (i < Board.size() - 1) Board[i][j].addNeighbor(&Board[i + 1][j]); // Down
+                if (j > 0) Board[i][j].addNeighbor(&Board[i][j - 1]); // Left
+                if (j < Board[i].size() - 1) Board[i][j].addNeighbor(&Board[i][j + 1]); // Right
+            }
+        }
     }
     void restoreFromState(const GameState& state) {
         Board = state.Board;
@@ -123,6 +161,7 @@ public:
         pendingTurnChange = state.pendingTurnChange;
         turns = state.turns;
         skipExplosions = state.skipExplosions;
+        linkNeighbours();
     }
     Vector2 screenToGrid(Vector2 screenPos) const;
 private:
@@ -158,12 +197,15 @@ extern Rectangle colSliderRect;
 extern Rectangle playerSliderRect;
 extern Rectangle buttonRect;
 extern Rectangle restartButtonRect;
+extern Rectangle exitButtonRect;
 extern Rectangle undoButtonRect;
 extern Rectangle redoButtonRect;
+extern Rectangle CPUSliderRect;
 
 extern float rowValue;
 extern float colValue;
 extern float playerValue;
+extern float cpuValue;
 
 extern Shader coreShader;
 extern Shader auraShader;
@@ -189,4 +231,5 @@ void moveCameraviaRightClick();
 void resetCameraviaMiddleClick();
 void zoomCameraViaScroll();
 void resizeAssets(int screenWidth, int screenHeight);
+
 #endif

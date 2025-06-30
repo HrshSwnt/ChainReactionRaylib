@@ -53,6 +53,7 @@ void drawMenu() {
     GuiSliderBar(rowSliderRect, "Rows ", std::to_string(static_cast<int>(rowValue)).c_str(), &rowValue, MIN_ROWS, MAX_ROWS);
     GuiSliderBar(colSliderRect, "Columns ", std::to_string(static_cast<int>(colValue)).c_str(), &colValue, MIN_COLS, MAX_COLS);
     GuiSliderBar(playerSliderRect, "Players ", std::to_string(static_cast<int>(playerValue)).c_str(), &playerValue, MIN_PLAYERS, MAX_PLAYERS);
+    GuiSliderBar(CPUSliderRect, "CPU Players ", std::to_string(static_cast<int>(cpuValue)).c_str(), &cpuValue, MIN_CPU_PLAYERS, MAX_CPU_PLAYERS);
     GuiButton( buttonRect, "Start Game");
 }
 
@@ -102,7 +103,7 @@ void drawValidCursor() {
     int X = static_cast<int>(gridPos.x);
     int Y = static_cast<int>(gridPos.y);
     
-    if (X >= 0 && X < Game::instance().rows && Y >= 0 && Y < Game::instance().cols) {
+    if (X >= 0 && X < Game::instance().rows && Y >= 0 && Y < Game::instance().cols && explosionQueue.empty()) {
         Cell* cell = &Game::instance().Board[X][Y];
         // Check if the cell is empty or belongs to the current player
         if (cell->p == 0 || cell->p == Game::instance().getPlayer()) {
@@ -117,7 +118,7 @@ void drawValidCursor() {
 void drawExplosions() {
     bool end = false;
     if (Game::instance().skipExplosions) {
-        int maxStepsPerFrame = 100;
+        int maxStepsPerFrame = 25;
         int steps = 0;
         while (!explosionQueue.empty() && steps < maxStepsPerFrame) {
             PendingExplosion& explosion = explosionQueue.front();
@@ -267,9 +268,10 @@ void mousePressed(){
                     int rows = static_cast<int>(rowValue);
                     int cols = static_cast<int>(colValue);
                     int players = static_cast<int>(playerValue);
+                    int cpuPlayers = static_cast<int>(cpuValue);
                     initializeCamera(rows, cols); // Initialize camera based on user input
                     explosionQueue = std::queue<PendingExplosion>(); // Reset explosion queue
-                    Game::instance().initialize(rows, cols, players); // Example initialization
+                    Game::instance().initialize(rows, cols, players, cpuPlayers); // Example initialization
                 }
                 break;
             case GAME_STATE_PLAYING:
@@ -289,6 +291,10 @@ void mousePressed(){
                         Game::instance().restoreFromState(state);
                         Game::instance().redoStack.pop();
                     }
+                } else if (Game::instance().getCurrentPlayer().isCPUPlayer() && explosionQueue.empty()) {
+                    // If the current player is a CPU, let it take its turn
+                    std::pair<int, int> move = Game::instance().getCurrentPlayer().CPUTurn();
+                    Game::instance().CPUpress(move.first, move.second);
                 } else if (explosionQueue.empty()) {
                     Game::instance().press(mousePos.x, mousePos.y);
                 } else {
@@ -307,7 +313,7 @@ void mousePressed(){
                         Game::instance().redoStack.push(state); // Push to redo stack
                         gameState = GAME_STATE_PLAYING; // Go back to playing state
                     }
-                } else {
+                } else if (CheckCollisionPointRec(mousePos, exitButtonRect)) {
                     gameState = GAME_STATE_EXIT; // Exit the game
                 }
                 break;
@@ -356,6 +362,9 @@ void resizeAssets(int screenWidth, int screenHeight) {
     playerSliderRect = colSliderRect;
     playerSliderRect.y += sliderSpacing;
 
+    CPUSliderRect = playerSliderRect;
+    CPUSliderRect.y += sliderSpacing;
+
     // Start button below sliders
     buttonRect = {
         menuRect.x + (menuRect.width - 300 * uniformScale) / 2.0f,
@@ -368,6 +377,13 @@ void resizeAssets(int screenWidth, int screenHeight) {
     restartButtonRect = {
         (screenWidth - 200 * uniformScale) / 2.0f,
         (screenHeight / 2.0f + 150 * uniformScale),
+        200 * uniformScale,
+        40 * uniformScale
+    };
+
+    exitButtonRect = {
+        (screenWidth - 200 * uniformScale) / 2.0f,
+        (screenHeight / 2.0f + 200 * uniformScale),
         200 * uniformScale,
         40 * uniformScale
     };

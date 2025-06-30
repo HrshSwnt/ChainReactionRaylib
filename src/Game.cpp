@@ -9,10 +9,10 @@ Game& Game::instance() {
     return instance;
 }
 
-void Game::initialize(int r, int c, int p){
+void Game::initialize(int r, int c, int p, int cpu){
     rows = r;
     cols = c;
-    playerCount = p;
+    playerCount = p + cpu;
     currentPlayer = 0;
     turns = 0;
     pendingTurnChange = false;
@@ -39,8 +39,11 @@ void Game::initialize(int r, int c, int p){
         }
     }
     Players.clear();
-    for (int i = 0; i < playerCount; ++i) {
+    for (int i = 0; i < p; ++i) {
         Players.push_back(Player(i + 1, false)); // Player IDs start from 1
+    }
+    for (int i = 0; i < cpu; ++i) {
+        Players.push_back(Player(p + i + 1, true)); // CPU players start from p + 1
     }
 }
 
@@ -113,6 +116,9 @@ void Game::drawGame() const {
     for (const auto& player : Players) {
         Color playerColor = PlayerIDtoColor(player.getID());
         std::string playerName = PlayerIDtoName(player.getID());
+        if (player.isCPUPlayer()) {
+            playerName += " (CPU)";
+        }
         int count = 0;
         for (const auto& row : Board) {
             for (const auto& cell : row) {
@@ -141,6 +147,28 @@ void Game::press(float x, float y) {
         GameState currentState = getCurrentState();
 
         if (Board[X][Y].incr(getPlayer(), true)) {
+            undoStack.push(currentState);
+            if (redoStack.size() > 0) {
+                redoStack = std::stack<GameState>(); // Clear redo stack if a new action is taken
+            }
+            turns++;
+            if (explosionQueue.empty()) {
+                changePlayer();
+            } else {
+                pendingTurnChange = true;
+            }
+        }
+    }
+}
+
+void Game::CPUpress(int X, int Y) {
+    if (X < 0 || X >= rows || Y < 0 || Y >= cols) {
+        return; // Out of bounds
+    }
+    if (X >= 0 && X < rows && Y >= 0 && Y < cols && currentPlayer >= 0 && currentPlayer < playerCount) {
+        GameState currentState = getCurrentState();
+
+        if (Board[X][Y].incr(getPlayer(), false)) {
             undoStack.push(currentState);
             if (redoStack.size() > 0) {
                 redoStack = std::stack<GameState>(); // Clear redo stack if a new action is taken
@@ -244,3 +272,7 @@ Vector2 Game::screenToGrid(Vector2 screenPos) const {
     int gridY = static_cast<int>(y / SPACING);
     return { (float)gridX, (float)gridY };
 }
+
+
+
+
