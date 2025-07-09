@@ -1,6 +1,6 @@
 # ChainReactionRaylib
-A Port of the Chain Reaction Game developed in C++ using Raylib with dedicated support for a WASM build using emscripten. 
-
+A port of the Chain Reaction Game developed in C++ using Raylib with dedicated support for a WASM build using emscripten. 
+Live build of the most stable release available [here](https://hrshswnt.github.io/ChainReactionRaylib/).
 
 # Raylib-Quickstart
 A simple cross platform template for setting up a project with the bleeding edge raylib code.
